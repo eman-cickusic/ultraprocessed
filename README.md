@@ -12,19 +12,6 @@ In practice, Zest is about:
 - spotting ingredient-level signals clearly
 - choosing healthier options with more confidence
 
-## What Zest Does
-
-- Scan food ingredient labels with the camera.
-- Import a label photo from your gallery.
-- Scan a barcode and look up product data when USDA access is configured.
-- Show a NOVA-style result for the full label.
-- Break ingredients into compact color-coded bubbles.
-- Show allergen signals in a separate section.
-- Save scan history locally on your phone.
-- Show token and cost usage in scan history, using provider-reported usage when available.
-- Use the same Zest splash, launcher icon, typography, and sound setting across the app.
-- Keep API keys encrypted on device.
-
 ## Feature List
 
 Zest is designed as a consumer-grade ingredient intelligence layer: fast enough for the grocery aisle, structured enough for product decisions, and privacy-conscious enough for everyday trust.
