@@ -41,7 +41,7 @@ Zest is designed as a consumer-grade ingredient intelligence layer: fast enough 
 - Result-scoped chat: users can ask follow-up questions about the current scan without turning the app into a general chatbot.
 - Barcode support: barcode scans can enrich analysis through USDA data when configured.
 - Failed scan recovery: failed image-based scans can appear in History with a rerun path.
-- Usage visibility: History shows estimated token and cost usage by model/provider.
+- Usage visibility: History shows provider-reported token and cost usage by model/provider when available, with local estimates as fallback.
 
 ### Operational Readiness
 
@@ -54,10 +54,11 @@ Zest is designed as a consumer-grade ingredient intelligence layer: fast enough 
 ## How To Set It Up
 
 1. Install and open the app on an Android phone or tablet.
-2. Go to `Settings`.
-3. Add your AI model key if you want image and ingredient analysis.
-4. Optionally add the USDA key if you want barcode lookup support.
-5. Wait for the key status indicator to turn green before scanning.
+2. Review the disclaimer on first launch and tap `I agree`, then `Next`.
+3. Go to `Settings`.
+4. Add your AI model key if you want label analysis. Images stay on device; OCR extracts text locally.
+5. Optionally add the USDA key if you want barcode lookup support.
+6. Wait for the key status indicator to turn green before scanning.
 
 ## How To Use Zest
 
@@ -67,17 +68,18 @@ Zest is designed as a consumer-grade ingredient intelligence layer: fast enough 
    - Upload a label photo from your gallery.
    - Scan a barcode.
 3. Review the analysis result.
-4. Tap the ingredient bubbles to read the ingredient-level NOVA signals.
+4. Review the ingredient capsules to see which corrected ingredients were flagged as ultra-processed markers.
 5. Check the allergen block for separate allergen signals.
 6. Open `History` to revisit old scans.
 
 ## What The Result Means
 
 - `NOVA 1` usually means minimally processed.
-- `NOVA 2-3` means the product has some processing.
+- `NOVA 2` usually means processed culinary ingredients.
+- `NOVA 3` means processed foods.
 - `NOVA 4` means the label has stronger ultra-processing signals.
 
-Ingredient bubbles are color-coded individually from the API output. Allergen signals are shown separately so they do not get mixed into the ingredient score.
+Ingredient capsules are color-coded from the API-returned ultra-processed marker list: red for flagged ultra-processed markers, green otherwise. Allergen signals are shown separately so they do not get mixed into the ingredient score.
 
 ## Privacy
 
@@ -88,13 +90,14 @@ Zest is designed to keep your data local by default.
 - Saved keys are not shown back in plain text.
 - No sign-in is required.
 
-When you analyze a label, OCR runs on device first. The app never sends captured or uploaded label images to the API provider. Only extracted ingredient text is sent for classification and allergen detection when you have configured a key.
+When you analyze a label, OCR runs on device first. The app never sends captured or uploaded label images to the API provider. Only extracted text or corrected ingredient names are sent for NOVA classification, ingredient analysis, allergen detection, and result chat when you have configured a key.
 
 ## Important Notes
 
 - Zest is not medical advice.
 - Zest is not a nutrition label verifier.
 - If the image is not a real ingredient panel or ingredient list, the app will reject it.
+- The first-run disclaimer is also available from `Settings`.
 - Barcode lookup depends on USDA availability and may fail if the product is missing from the database.
 - API providers may rate-limit requests. If that happens, the app will tell you.
 
@@ -107,7 +110,7 @@ Zest is built and maintained by the B2 group.
 - Technical Advisor
   - Atul Bhagat - [LinkedIn](https://www.linkedin.com/in/bhagatatul/)
 - Contributors
-  - Emmy - LinkedIn: pending
+  - Emmy - [LinkedIn](https://www.linkedin.com/in/emmy-lin-129b26263/)
   - Emre Can Baykurt - [LinkedIn](https://www.linkedin.com/in/ebaykurt/)
   - Samet Temurcin - [LinkedIn](https://www.linkedin.com/in/samet-temurcin/)
   - Ola Ajayi - [LinkedIn](https://www.linkedin.com/in/olaajayi1234/)
@@ -131,6 +134,7 @@ If the app fails to analyze a label:
 
 ## Project Links
 
+- Repository: https://github.com/benevolentbandwidth/ultraprocessed
 - License: [LICENSE/LICENSE.md](LICENSE/LICENSE.md)
 - Technical documentation: [documentation/README.md](documentation/README.md)
 - Non-Android architecture guide: [documentation/00-android-app-guide.md](documentation/00-android-app-guide.md)

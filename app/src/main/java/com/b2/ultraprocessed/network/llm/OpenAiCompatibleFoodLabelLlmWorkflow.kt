@@ -29,20 +29,21 @@ class OpenAiCompatibleFoodLabelLlmWorkflow(
         extraction: IngredientExtraction,
         modelId: String,
         onStatus: (String) -> Unit,
-    ): Result<NovaClassification> = withContext(Dispatchers.IO) {
+    ): Result<LlmStageResult<NovaClassification>> = withContext(Dispatchers.IO) {
         try {
             val apiKey = requireApiKey()
             val prompt = readPrompt(CLASSIFICATION_PROMPT)
             AnalysisDebugLogger.log("${providerTag}_nova_request", extraction.toPromptJson().toString(2))
-            val candidate = executeJsonRequest(
+            val response = executeJsonRequest(
                 requestBody = buildTextRequestBody(prompt, extraction.toPromptJson(), modelId),
                 operation = "classify_nova",
                 modelId = modelId,
                 apiKey = apiKey,
             )
+            val candidate = response.json
             AnalysisDebugLogger.log("${providerTag}_nova_candidate", candidate.toString(2))
             val classification = LlmClassificationParser.parseNova(candidate)
-            Result.success(classification)
+            Result.success(LlmStageResult(classification, response.usage))
         } catch (t: Throwable) {
             Result.failure(t)
         }
@@ -52,19 +53,20 @@ class OpenAiCompatibleFoodLabelLlmWorkflow(
         extraction: IngredientExtraction,
         modelId: String,
         onStatus: (String) -> Unit,
-    ): Result<IngredientListAnalysis> = withContext(Dispatchers.IO) {
+    ): Result<LlmStageResult<IngredientListAnalysis>> = withContext(Dispatchers.IO) {
         try {
             val apiKey = requireApiKey()
             val prompt = readPrompt(INGREDIENT_ANALYSIS_PROMPT)
             AnalysisDebugLogger.log("${providerTag}_ingredient_list_request", extraction.toPromptJson().toString(2))
-            val candidate = executeJsonRequest(
+            val response = executeJsonRequest(
                 requestBody = buildTextRequestBody(prompt, extraction.toPromptJson(), modelId),
                 operation = "analyze_ingredient_list",
                 modelId = modelId,
                 apiKey = apiKey,
             )
+            val candidate = response.json
             AnalysisDebugLogger.log("${providerTag}_ingredient_list_candidate", candidate.toString(2))
-            Result.success(LlmClassificationParser.parseIngredientList(candidate))
+            Result.success(LlmStageResult(LlmClassificationParser.parseIngredientList(candidate), response.usage))
         } catch (t: Throwable) {
             Result.failure(t)
         }
@@ -74,21 +76,22 @@ class OpenAiCompatibleFoodLabelLlmWorkflow(
         correctedIngredientNames: List<String>,
         modelId: String,
         onStatus: (String) -> Unit,
-    ): Result<AllergenDetection> = withContext(Dispatchers.IO) {
+    ): Result<LlmStageResult<AllergenDetection>> = withContext(Dispatchers.IO) {
         try {
             val apiKey = requireApiKey()
             val prompt = readPrompt(ALLERGEN_PROMPT)
             val input = JSONObject().put("correctedIngredients", JSONArray(correctedIngredientNames))
             AnalysisDebugLogger.log("${providerTag}_allergen_request", input.toString(2))
-            val allergensCandidate = executeJsonRequest(
+            val response = executeJsonRequest(
                 requestBody = buildTextRequestBody(prompt, input, modelId),
                 operation = "detect_allergens",
                 modelId = modelId,
                 apiKey = apiKey,
             )
+            val allergensCandidate = response.json
             AnalysisDebugLogger.log("${providerTag}_allergen_candidate", allergensCandidate.toString(2))
             val allergens = parseAllergenDetection(allergensCandidate)
-            Result.success(allergens)
+            Result.success(LlmStageResult(allergens, response.usage))
         } catch (t: Throwable) {
             Result.failure(t)
         }
@@ -134,7 +137,7 @@ class OpenAiCompatibleFoodLabelLlmWorkflow(
         operation: String,
         modelId: String,
         apiKey: String,
-    ): JSONObject = withContext(Dispatchers.IO) {
+    ): OpenAiProviderJsonResponse = withContext(Dispatchers.IO) {
         val url = "$baseUrl/chat/completions".toHttpUrl().newBuilder().build()
         AnalysisTelemetry.event("${providerTag}_request_start op=$operation model=$modelId")
         val request = Request.Builder()
@@ -155,7 +158,7 @@ class OpenAiCompatibleFoodLabelLlmWorkflow(
         }
     }
 
-    private fun parseChatCompletionResponse(rawBody: String, operation: String): JSONObject {
+    private fun parseChatCompletionResponse(rawBody: String, operation: String): OpenAiProviderJsonResponse {
         val root = JSONObject(rawBody)
         val content = root.optJSONArray("choices")
             ?.optJSONObject(0)
@@ -166,7 +169,10 @@ class OpenAiCompatibleFoodLabelLlmWorkflow(
         if (content.isBlank()) {
             throw IOException("LLM food-label workflow returned no text.")
         }
-        return parseResponseJson(content, operation)
+        return OpenAiProviderJsonResponse(
+            json = parseResponseJson(content, operation),
+            usage = root.parseOpenAiUsage(),
+        )
     }
 
     private fun parseResponseJson(text: String, operation: String): JSONObject {
@@ -213,6 +219,20 @@ class OpenAiCompatibleFoodLabelLlmWorkflow(
         private const val ALLERGEN_PROMPT = "prompts/food_label_allergen_prompt.md"
         private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
     }
+}
+
+private data class OpenAiProviderJsonResponse(
+    val json: JSONObject,
+    val usage: LlmUsage?,
+)
+
+private fun JSONObject.parseOpenAiUsage(): LlmUsage? {
+    val usage = optJSONObject("usage") ?: return null
+    val input = usage.optInt("prompt_tokens", usage.optInt("input_tokens", 0)).coerceAtLeast(0)
+    val output = usage.optInt("completion_tokens", usage.optInt("output_tokens", 0)).coerceAtLeast(0)
+    val total = usage.optInt("total_tokens", input + output).coerceAtLeast(input + output)
+    if (input == 0 && output == 0 && total == 0) return null
+    return LlmUsage(inputTokens = input, outputTokens = output, totalTokens = total)
 }
 
 object OpenAiCompatibleHttpClientFactory {

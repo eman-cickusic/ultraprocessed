@@ -148,6 +148,7 @@ fun ScannerScreen(
     var isCameraPipelineReady by remember { mutableStateOf(false) }
     /** False until live barcode analysis use case is bound. */
     var isBarcodeLiveReady by remember { mutableStateOf(false) }
+    var hasDetectedBarcode by remember { mutableStateOf(false) }
     var useFrontCamera by rememberSaveable { mutableStateOf(false) }
     val cameraSelector = remember(useFrontCamera) {
         if (useFrontCamera) CameraSelector.DEFAULT_FRONT_CAMERA else CameraSelector.DEFAULT_BACK_CAMERA
@@ -229,8 +230,14 @@ fun ScannerScreen(
 
     LaunchedEffect(scannerMode) {
         when (scannerMode) {
-            ScannerMode.Label -> isBarcodeLiveReady = false
-            ScannerMode.BarcodeLive -> isCameraPipelineReady = false
+            ScannerMode.Label -> {
+                isBarcodeLiveReady = false
+                hasDetectedBarcode = false
+            }
+            ScannerMode.BarcodeLive -> {
+                isCameraPipelineReady = false
+                hasDetectedBarcode = false
+            }
         }
     }
 
@@ -328,7 +335,10 @@ fun ScannerScreen(
                                                     barcodeLiveController.bind(
                                                         previewView = this,
                                                         lifecycleOwner = lifecycleOwner,
-                                                        onBarcodeDetected = onBarcodeScanned,
+                                                        onBarcodeDetected = { barcode ->
+                                                            hasDetectedBarcode = true
+                                                            onBarcodeScanned(barcode)
+                                                        },
                                                         cameraSelector = cameraSelector,
                                                         onBound = { isBarcodeLiveReady = true },
                                                     )
@@ -338,7 +348,10 @@ fun ScannerScreen(
                                     },
                                     update = {
                                         if (scannerMode == ScannerMode.BarcodeLive) {
-                                            barcodeLiveController.updateBarcodeCallback(onBarcodeScanned)
+                                            barcodeLiveController.updateBarcodeCallback { barcode ->
+                                                hasDetectedBarcode = true
+                                                onBarcodeScanned(barcode)
+                                            }
                                         }
                                     },
                                     // Do not call bind() from [update]: scan-line animation recomposes every frame.
@@ -424,6 +437,10 @@ fun ScannerScreen(
                     )
 
                     ScannerCornerFrame(
+                        accentColor = when {
+                            scannerMode == ScannerMode.BarcodeLive && !hasDetectedBarcode -> Amber400
+                            else -> Emerald400
+                        },
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(0.dp),
@@ -480,25 +497,6 @@ fun ScannerScreen(
                 overflow = TextOverflow.Ellipsis,
             )
 
-            ScannerActionPill(
-                text = if (isImporting) {
-                    stringResource(R.string.scanner_importing)
-                } else {
-                    stringResource(R.string.scanner_upload_photo)
-                },
-                icon = Icons.Default.Image,
-                enabled = !isImporting,
-                selected = false,
-                onClick = {
-                    onSoundEffect(AppSoundEvent.Click)
-                    galleryLauncher.launch("image/*")
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = ScannerMetrics.Grid)
-                    .testTag(AppTestTags.SCANNER_UPLOAD_BUTTON),
-            )
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -550,94 +548,97 @@ fun ScannerScreen(
                 )
             }
 
-            Button(
-                onClick = {
-                    if (!enableLiveCamera) {
-                        cameraStatusMessage = cameraPreviewDisabledBuildText
-                        return@Button
-                    }
-
-                    if (!hasCameraPermission) {
-                        permissionLauncher.launch(Manifest.permission.CAMERA)
-                        return@Button
-                    }
-
-                    if (scannerMode == ScannerMode.BarcodeLive) {
+            if (scannerMode == ScannerMode.Label) {
+                ScannerActionPill(
+                    text = if (isImporting) {
+                        stringResource(R.string.scanner_importing)
+                    } else {
+                        stringResource(R.string.scanner_upload_photo)
+                    },
+                    icon = Icons.Default.Image,
+                    enabled = !isImporting,
+                    selected = false,
+                    onClick = {
                         onSoundEffect(AppSoundEvent.Click)
-                        cameraStatusMessage = if (isBarcodeLiveReady) {
-                            barcodeListeningText
-                        } else {
-                            barcodeStartingText
+                        galleryLauncher.launch("image/*")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = ScannerMetrics.Grid)
+                        .testTag(AppTestTags.SCANNER_UPLOAD_BUTTON),
+                )
+
+                Button(
+                    onClick = {
+                        if (!enableLiveCamera) {
+                            cameraStatusMessage = cameraPreviewDisabledBuildText
+                            return@Button
                         }
-                        return@Button
-                    }
 
-                    if (!isCameraPipelineReady) {
-                        cameraStatusMessage = cameraStillStartingText
-                        return@Button
-                    }
+                        if (!hasCameraPermission) {
+                            permissionLauncher.launch(Manifest.permission.CAMERA)
+                            return@Button
+                        }
 
-                    onSoundEffect(AppSoundEvent.Click)
-                    isCapturing = true
-                    cameraStatusMessage = null
-                    cameraController.capturePhoto(
-                        onSuccess = { capture ->
-                            isCapturing = false
-                            onScan(capture.absolutePath)
-                        },
-                        onError = { throwable ->
-                            isCapturing = false
-                            onSoundEffect(AppSoundEvent.Error)
-                            cameraStatusMessage = throwable.message ?: "Failed to capture image."
-                        },
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = ScannerMetrics.Grid)
-                    .height(ScannerMetrics.PrimaryHeight)
-                    .testTag(AppTestTags.SCANNER_CAPTURE_BUTTON),
-                shape = RoundedCornerShape(ScannerMetrics.PrimaryRadius),
-                colors = ButtonDefaults.buttonColors(containerColor = Emerald500),
-                enabled = !isCapturing && (!enableLiveCamera || hasCameraPermission),
-            ) {
-                if (isCapturing) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        color = Color.Black,
-                        strokeWidth = 2.dp,
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = stringResource(R.string.scanner_capturing),
-                        color = Color.Black,
-                        fontFamily = SpaceGroteskFontFamily,
-                        fontSize = ScannerMetrics.PrimaryText,
-                        fontWeight = FontWeight.Bold,
-                    )
-                } else {
-                    Icon(
-                        if (scannerMode == ScannerMode.BarcodeLive) {
-                            Icons.Filled.QrCodeScanner
-                        } else {
-                            Icons.Default.CameraAlt
-                        },
-                        contentDescription = null,
-                        tint = Color.Black,
-                        modifier = Modifier.size(ScannerMetrics.IconMedium),
-                    )
-                    Spacer(modifier = Modifier.width(ScannerMetrics.Space2))
-                    Text(
-                        text = if (scannerMode == ScannerMode.BarcodeLive) {
-                            stringResource(R.string.scanner_scan_barcode)
-                        } else {
-                            stringResource(R.string.scanner_scan_label)
-                        },
-                        color = Color.Black,
-                        fontFamily = SpaceGroteskFontFamily,
-                        fontSize = ScannerMetrics.PrimaryText,
-                        fontWeight = FontWeight.SemiBold,
-                    )
+                        if (!isCameraPipelineReady) {
+                            cameraStatusMessage = cameraStillStartingText
+                            return@Button
+                        }
+
+                        onSoundEffect(AppSoundEvent.Click)
+                        isCapturing = true
+                        cameraStatusMessage = null
+                        cameraController.capturePhoto(
+                            onSuccess = { capture ->
+                                isCapturing = false
+                                onScan(capture.absolutePath)
+                            },
+                            onError = { throwable ->
+                                isCapturing = false
+                                onSoundEffect(AppSoundEvent.Error)
+                                cameraStatusMessage = throwable.message ?: "Failed to capture image."
+                            },
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = ScannerMetrics.Grid)
+                        .height(ScannerMetrics.PrimaryHeight)
+                        .testTag(AppTestTags.SCANNER_CAPTURE_BUTTON),
+                    shape = RoundedCornerShape(ScannerMetrics.PrimaryRadius),
+                    colors = ButtonDefaults.buttonColors(containerColor = Emerald500),
+                    enabled = !isCapturing && (!enableLiveCamera || hasCameraPermission),
+                ) {
+                    if (isCapturing) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            color = Color.Black,
+                            strokeWidth = 2.dp,
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.scanner_capturing),
+                            color = Color.Black,
+                            fontFamily = SpaceGroteskFontFamily,
+                            fontSize = ScannerMetrics.PrimaryText,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    } else {
+                        Icon(
+                            Icons.Default.CameraAlt,
+                            contentDescription = null,
+                            tint = Color.Black,
+                            modifier = Modifier.size(ScannerMetrics.IconMedium),
+                        )
+                        Spacer(modifier = Modifier.width(ScannerMetrics.Space2))
+                        Text(
+                            text = stringResource(R.string.scanner_scan_label),
+                            color = Color.Black,
+                            fontFamily = SpaceGroteskFontFamily,
+                            fontSize = ScannerMetrics.PrimaryText,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
                 }
             }
 
@@ -766,24 +767,31 @@ private fun ScannerHeaderAction(
 }
 
 @Composable
-private fun ScannerCornerFrame(modifier: Modifier = Modifier) {
+private fun ScannerCornerFrame(
+    accentColor: Color,
+    modifier: Modifier = Modifier,
+) {
     Box(modifier = modifier) {
         ScannerCorner(
+            accentColor = accentColor,
             horizontalAlignment = Alignment.Start,
             verticalAlignment = Alignment.Top,
             modifier = Modifier.align(Alignment.TopStart),
         )
         ScannerCorner(
+            accentColor = accentColor,
             horizontalAlignment = Alignment.End,
             verticalAlignment = Alignment.Top,
             modifier = Modifier.align(Alignment.TopEnd),
         )
         ScannerCorner(
+            accentColor = accentColor,
             horizontalAlignment = Alignment.Start,
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier.align(Alignment.BottomStart),
         )
         ScannerCorner(
+            accentColor = accentColor,
             horizontalAlignment = Alignment.End,
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier.align(Alignment.BottomEnd),
@@ -793,12 +801,13 @@ private fun ScannerCornerFrame(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ScannerCorner(
+    accentColor: Color,
     horizontalAlignment: Alignment.Horizontal,
     verticalAlignment: Alignment.Vertical,
     modifier: Modifier = Modifier,
 ) {
-    val glowColor = Emerald400.copy(alpha = 0.24f)
-    val coreColor = Emerald400.copy(alpha = 0.38f)
+    val glowColor = accentColor.copy(alpha = 0.20f)
+    val coreColor = accentColor.copy(alpha = 0.34f)
     Box(
         modifier = modifier.size(48.dp),
     ) {

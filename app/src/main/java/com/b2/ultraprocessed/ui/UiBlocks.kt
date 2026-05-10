@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.b2.ultraprocessed.ui.theme.Emerald400
@@ -58,9 +59,10 @@ fun UiSectionHeader(
         }
         Text(
             text = text,
-            color = Color.White.copy(alpha = 0.42f),
+            color = Color.White.copy(alpha = 0.62f),
             fontFamily = SpaceGroteskFontFamily,
             fontSize = UiTextSizes.SectionHeader,
+            fontWeight = FontWeight.Medium,
             letterSpacing = 0.4.sp,
         )
     }

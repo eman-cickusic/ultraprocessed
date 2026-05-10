@@ -11,6 +11,7 @@ import com.b2.ultraprocessed.network.llm.FoodLabelLlmWorkflow
 import com.b2.ultraprocessed.network.llm.IngredientListAnalysis
 import com.b2.ultraprocessed.network.llm.IngredientExtraction
 import com.b2.ultraprocessed.network.llm.IngredientRiskMarker
+import com.b2.ultraprocessed.network.llm.LlmStageResult
 import com.b2.ultraprocessed.network.llm.NovaClassification
 import com.b2.ultraprocessed.ocr.OcrPipeline
 import com.b2.ultraprocessed.ocr.OcrResult
@@ -216,14 +217,16 @@ private class FakeFoodLabelLlmWorkflow(
         extraction: IngredientExtraction,
         modelId: String,
         onStatus: (String) -> Unit,
-    ): Result<NovaClassification> {
+    ): Result<LlmStageResult<NovaClassification>> {
         classificationFailure?.let { return Result.failure(it) }
         return Result.success(
-            NovaClassification(
-                novaGroup = 4,
-                summary = "The staged classifier found ultra-processed ingredient markers.",
-                confidence = 0.82f,
-                warnings = emptyList(),
+            LlmStageResult(
+                NovaClassification(
+                    novaGroup = 4,
+                    summary = "The staged classifier found ultra-processed ingredient markers.",
+                    confidence = 0.82f,
+                    warnings = emptyList(),
+                ),
             ),
         )
     }
@@ -232,20 +235,22 @@ private class FakeFoodLabelLlmWorkflow(
         extraction: IngredientExtraction,
         modelId: String,
         onStatus: (String) -> Unit,
-    ): Result<IngredientListAnalysis> =
+    ): Result<LlmStageResult<IngredientListAnalysis>> =
         Result.success(
-            IngredientListAnalysis(
-                correctedIngredients = extraction.ingredients.map { it.replaceFirstChar { c -> c.titlecaseChar() } },
-                ultraProcessedIngredients = extraction.ingredients
-                    .filter { it.contains("flavor", ignoreCase = true) }
-                    .map {
-                        IngredientRiskMarker(
-                            name = it.replaceFirstChar { c -> c.titlecaseChar() },
-                            reason = "Flavor systems are a NOVA 4 processing marker.",
-                        )
-                    },
-                warnings = emptyList(),
-                confidence = 0.82f,
+            LlmStageResult(
+                IngredientListAnalysis(
+                    correctedIngredients = extraction.ingredients.map { it.replaceFirstChar { c -> c.titlecaseChar() } },
+                    ultraProcessedIngredients = extraction.ingredients
+                        .filter { it.contains("flavor", ignoreCase = true) }
+                        .map {
+                            IngredientRiskMarker(
+                                name = it.replaceFirstChar { c -> c.titlecaseChar() },
+                                reason = "Flavor systems are a NOVA 4 processing marker.",
+                            )
+                        },
+                    warnings = emptyList(),
+                    confidence = 0.82f,
+                ),
             ),
         )
 
@@ -253,12 +258,14 @@ private class FakeFoodLabelLlmWorkflow(
         correctedIngredientNames: List<String>,
         modelId: String,
         onStatus: (String) -> Unit,
-    ): Result<AllergenDetection> =
+    ): Result<LlmStageResult<AllergenDetection>> =
         Result.success(
-            AllergenDetection(
-                allergens = listOf("Milk", "Wheat"),
-                warnings = emptyList(),
-                confidence = 0.88f,
+            LlmStageResult(
+                AllergenDetection(
+                    allergens = listOf("Milk", "Wheat"),
+                    warnings = emptyList(),
+                    confidence = 0.88f,
+                ),
             ),
         )
 }

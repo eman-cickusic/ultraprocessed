@@ -34,22 +34,23 @@ class GeminiFoodLabelLlmWorkflow(
         extraction: IngredientExtraction,
         modelId: String,
         onStatus: (String) -> Unit,
-    ): Result<NovaClassification> = withContext(Dispatchers.IO) {
+    ): Result<LlmStageResult<NovaClassification>> = withContext(Dispatchers.IO) {
         try {
             requireSupportedModel(modelId)
             val apiKey = requireApiKey()
 
             val prompt = readPrompt(CLASSIFICATION_PROMPT)
             AnalysisDebugLogger.log("gemini_nova_request", extraction.toPromptJson().toString(2))
-            val candidate = executeJsonRequest(
+            val response = executeJsonRequest(
                 requestBody = buildTextRequestBody(prompt, extraction.toPromptJson()),
                 modelId = modelId,
                 apiKey = apiKey,
                 operation = "classify_nova",
             )
+            val candidate = response.json
             AnalysisDebugLogger.log("gemini_nova_candidate", candidate.toString(2))
             val classification = LlmClassificationParser.parseNova(candidate)
-            Result.success(classification)
+            Result.success(LlmStageResult(classification, response.usage))
         } catch (t: Throwable) {
             Result.failure(t)
         }
@@ -59,20 +60,21 @@ class GeminiFoodLabelLlmWorkflow(
         extraction: IngredientExtraction,
         modelId: String,
         onStatus: (String) -> Unit,
-    ): Result<IngredientListAnalysis> = withContext(Dispatchers.IO) {
+    ): Result<LlmStageResult<IngredientListAnalysis>> = withContext(Dispatchers.IO) {
         try {
             requireSupportedModel(modelId)
             val apiKey = requireApiKey()
             val prompt = readPrompt(INGREDIENT_ANALYSIS_PROMPT)
             AnalysisDebugLogger.log("gemini_ingredient_list_request", extraction.toPromptJson().toString(2))
-            val candidate = executeJsonRequest(
+            val response = executeJsonRequest(
                 requestBody = buildTextRequestBody(prompt, extraction.toPromptJson()),
                 modelId = modelId,
                 apiKey = apiKey,
                 operation = "analyze_ingredient_list",
             )
+            val candidate = response.json
             AnalysisDebugLogger.log("gemini_ingredient_list_candidate", candidate.toString(2))
-            Result.success(LlmClassificationParser.parseIngredientList(candidate))
+            Result.success(LlmStageResult(LlmClassificationParser.parseIngredientList(candidate), response.usage))
         } catch (t: Throwable) {
             Result.failure(t)
         }
@@ -82,7 +84,7 @@ class GeminiFoodLabelLlmWorkflow(
         correctedIngredientNames: List<String>,
         modelId: String,
         onStatus: (String) -> Unit,
-    ): Result<AllergenDetection> = withContext(Dispatchers.IO) {
+    ): Result<LlmStageResult<AllergenDetection>> = withContext(Dispatchers.IO) {
         try {
             requireSupportedModel(modelId)
             val apiKey = requireApiKey()
@@ -90,15 +92,16 @@ class GeminiFoodLabelLlmWorkflow(
             val prompt = readPrompt(ALLERGEN_PROMPT)
             val input = JSONObject().put("correctedIngredients", JSONArray(correctedIngredientNames))
             AnalysisDebugLogger.log("gemini_allergen_request", input.toString(2))
-            val allergensCandidate = executeJsonRequest(
+            val response = executeJsonRequest(
                 requestBody = buildTextRequestBody(prompt, input),
                 modelId = modelId,
                 apiKey = apiKey,
                 operation = "detect_allergens",
             )
+            val allergensCandidate = response.json
             AnalysisDebugLogger.log("gemini_allergen_candidate", allergensCandidate.toString(2))
             val allergens = parseAllergenDetection(allergensCandidate)
-            Result.success(allergens)
+            Result.success(LlmStageResult(allergens, response.usage))
         } catch (t: Throwable) {
             Result.failure(t)
         }
@@ -151,7 +154,7 @@ class GeminiFoodLabelLlmWorkflow(
         modelId: String,
         apiKey: String,
         operation: String,
-    ): JSONObject {
+    ): GeminiProviderJsonResponse {
         val url = "$BASE_URL/models/$modelId:generateContent".toHttpUrl().newBuilder()
             .build()
         AnalysisTelemetry.event("gemini_request_start op=$operation model=$modelId")
@@ -193,7 +196,7 @@ class GeminiFoodLabelLlmWorkflow(
         }
     }
 
-    private fun parseGenerateContentResponse(response: Response, operation: String): JSONObject {
+    private fun parseGenerateContentResponse(response: Response, operation: String): GeminiProviderJsonResponse {
         val body = response.body?.string().orEmpty()
         AnalysisDebugLogger.log("gemini_http_body", "operation=$operation body=${body.take(8_000)}")
         if (!response.isSuccessful) {
@@ -216,7 +219,10 @@ class GeminiFoodLabelLlmWorkflow(
         if (text.isBlank()) {
             throw IOException("LLM food-label workflow returned no text.")
         }
-        return parseResponseJson(text, operation)
+        return GeminiProviderJsonResponse(
+            json = parseResponseJson(text, operation),
+            usage = root.parseGeminiUsage(),
+        )
     }
 
     private fun buildHttpFailureMessage(statusCode: Int, apiBody: String): String {
@@ -264,6 +270,20 @@ class GeminiFoodLabelLlmWorkflow(
         private const val ALLERGEN_PROMPT = "prompts/food_label_allergen_prompt.md"
         private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
     }
+}
+
+private data class GeminiProviderJsonResponse(
+    val json: JSONObject,
+    val usage: LlmUsage?,
+)
+
+private fun JSONObject.parseGeminiUsage(): LlmUsage? {
+    val usage = optJSONObject("usageMetadata") ?: return null
+    val input = usage.optInt("promptTokenCount", 0).coerceAtLeast(0)
+    val output = usage.optInt("candidatesTokenCount", 0).coerceAtLeast(0)
+    val total = usage.optInt("totalTokenCount", input + output).coerceAtLeast(input + output)
+    if (input == 0 && output == 0 && total == 0) return null
+    return LlmUsage(inputTokens = input, outputTokens = output, totalTokens = total)
 }
 
 object GeminiHttpClientFactory {

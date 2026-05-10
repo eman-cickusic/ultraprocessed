@@ -71,7 +71,7 @@ class NovaDatabaseMigrationTest {
                     detectedMarkers, explanation, engineUsed, scannedAt
                 ) VALUES (
                     1, 'Ingredients: corn, salt', 'corn, salt', 'NOVA 3',
-                    0.7, '[]', 'Processed food', 'rules', 123456
+                    0.7, '[]', 'Processed food', 'legacy', 123456
                 )
                 """.trimIndent(),
             )

@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.b2.ultraprocessed.ui.theme.UltraProcessedTheme
 import org.junit.Rule
 import org.junit.Test
@@ -15,7 +16,13 @@ class UltraProcessedAppIntegrationTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun appStartsAtScanner_withProductionEntryPoints() {
+    fun appShowsDisclaimerFirst_thenScannerAfterAgreement() {
+        composeRule.activity.applicationContext
+            .getSharedPreferences("zest_app_preferences", android.content.Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .commit()
+
         composeRule.setContent {
             UltraProcessedTheme {
                 UltraProcessedApp(
@@ -28,6 +35,12 @@ class UltraProcessedAppIntegrationTest {
             }
         }
 
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            composeRule.onAllNodesWithText("Disclaimer").fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithText("Disclaimer").assertIsDisplayed()
+        composeRule.onNodeWithTag(AppTestTags.DISCLAIMER_AGREE).performClick()
+        composeRule.onNodeWithTag(AppTestTags.DISCLAIMER_NEXT).performClick()
         composeRule.waitUntil(timeoutMillis = 5_000) {
             composeRule.onAllNodesWithText("Zest").fetchSemanticsNodes().isNotEmpty()
         }

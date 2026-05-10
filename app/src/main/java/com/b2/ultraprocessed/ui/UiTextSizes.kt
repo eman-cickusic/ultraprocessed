@@ -14,7 +14,7 @@ object UiTextSizes {
     val HeroValue: TextUnit = 31.25.sp
 
     val ScreenSubtitle: TextUnit = BodySmall
-    val SectionHeader: TextUnit = Caption
+    val SectionHeader: TextUnit = BodySmall
     val Chip: TextUnit = Caption
     val MetricValue: TextUnit = ScreenTitle
 }

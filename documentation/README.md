@@ -101,7 +101,7 @@ flowchart TB
 - Allergens have a separate UI block and a separate API contract based on corrected ingredient names.
 - OCR failures stop before any LLM request is made.
 - Typography, spacing, and brand usage should come from shared UI files rather than one-off screen overrides.
-- Usage totals in history are estimates derived by the app unless the provider contract is extended to return exact usage metadata.
+- Usage totals in history use exact provider metadata when available, with local estimates only as a fallback.
 
 ## Reading Order For A New Engineer
 

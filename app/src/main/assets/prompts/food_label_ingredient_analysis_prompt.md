@@ -110,7 +110,7 @@ Allowed corrections:
 
 - Fix obvious OCR spelling mistakes.
 - Remove duplicated punctuation.
-- Remove leading labels such as `"Ingredients:"`.
+- Remove leading labels such as `"Ingredients:", "Contains:" etc.`.
 - Remove quantity symbols, bullets, and broken separators.
 - Normalize whitespace.
 - Normalize obvious casing into readable ingredient names.
@@ -274,6 +274,7 @@ Mark an ingredient red only if it clearly belongs to one of these categories:
 If unsure whether an ingredient is a red marker, do not mark it red and lower confidence if needed.
 
 ## Strong Red Marker Examples
+Do note that these are just and examples and not an exhaustive list!
 
 ### Flavor Systems
 

@@ -13,6 +13,7 @@ import com.b2.ultraprocessed.network.llm.IngredientListAnalysis
 import com.b2.ultraprocessed.network.llm.IngredientClassification
 import com.b2.ultraprocessed.network.llm.IngredientExtraction
 import com.b2.ultraprocessed.network.llm.IngredientRiskMarker
+import com.b2.ultraprocessed.network.llm.LlmUsage
 import com.b2.ultraprocessed.network.llm.MultiProviderFoodLabelLlmWorkflow
 import com.b2.ultraprocessed.network.llm.NovaClassification
 import com.b2.ultraprocessed.network.llm.OpenAiCompatibleFoodLabelLlmWorkflow
@@ -202,7 +203,7 @@ class FoodAnalysisPipeline(
         AnalysisDebugLogger.log("classification_input", extraction.toDebugString())
 
         onStage(AnalysisStage.AnalysingIngredients)
-        val nova = runLlmStage(
+        val novaStage = runLlmStage(
             stageName = "llm_classify_nova",
             timeoutMillis = CLASSIFICATION_TIMEOUT_MILLIS,
             timeoutMessage = "API NOVA classification timed out.",
@@ -213,7 +214,8 @@ class FoodAnalysisPipeline(
             val message = error.toFriendlyAnalysisMessage("API NOVA classification unavailable.")
             AnalysisDebugLogger.log("classification_failure", message)
             return Result.failure(Exception(message))
-        }.also {
+        }
+        val nova = novaStage.value.also {
             AnalysisDebugLogger.log(
                 "nova_output",
                 "containsFood=${it.containsConsumableFoodItem} nova=${it.novaGroup} " +
@@ -229,7 +231,7 @@ class FoodAnalysisPipeline(
             return Result.failure(NonConsumableFoodTextException(message))
         }
 
-        val ingredientList = runLlmStage(
+        val ingredientListStage = runLlmStage(
             stageName = "llm_analyze_ingredient_list",
             timeoutMillis = INGREDIENT_LIST_TIMEOUT_MILLIS,
             timeoutMessage = "API ingredient list cleanup timed out.",
@@ -240,14 +242,15 @@ class FoodAnalysisPipeline(
             val message = error.toFriendlyAnalysisMessage("API ingredient list cleanup unavailable.")
             AnalysisDebugLogger.log("ingredient_list_failure", message)
             return Result.failure(Exception(message))
-        }.also {
+        }
+        val ingredientList = ingredientListStage.value.also {
             AnalysisDebugLogger.log(
                 "ingredient_list_output",
                 "corrected=${it.correctedIngredients} ultraProcessed=${it.ultraProcessedIngredients} warnings=${it.warnings}",
             )
         }
 
-        val allergens = runLlmStage(
+        val allergensStage = runLlmStage(
             stageName = "llm_detect_allergens_from_corrected_ingredients",
             timeoutMillis = ALLERGEN_TIMEOUT_MILLIS,
             timeoutMessage = "API allergen detection timed out.",
@@ -258,12 +261,24 @@ class FoodAnalysisPipeline(
             val message = it.toFriendlyAnalysisMessage("Allergen detection unavailable.")
             AnalysisDebugLogger.log("allergen_failure", message)
             return Result.failure(Exception(message))
-        }.also {
+        }
+        val allergens = allergensStage.value.also {
             AnalysisDebugLogger.log(
                 "allergen_output",
                 "allergens=${it.allergens} confidence=${it.confidence} warnings=${it.warnings}",
             )
         }
+        val exactUsage = LlmUsage.aggregate(
+            listOf(novaStage.usage, ingredientListStage.usage, allergensStage.usage),
+        )
+        val usageEstimate = exactUsage?.let {
+            UsageEstimateCalculator.fromProviderUsage(modelId = modelId, usage = it)
+        } ?: UsageEstimateCalculator.estimateTextWorkflow(
+            modelId = modelId,
+            ingredientText = rawIngredientText,
+            problemIngredientCount = ingredientList.ultraProcessedIngredients.size,
+            allergenCount = allergens.allergens.size,
+        )
         val classification = buildClassificationFromApiStages(nova, ingredientList)
         val correctedIngredientLine = ingredientList.correctedIngredients.joinToString(", ")
         val scanResult = ClassificationUiMapper.toScanResultUi(
@@ -277,12 +292,7 @@ class FoodAnalysisPipeline(
             brandOwner = brandOwner,
             allergens = allergens.allergens,
             rawIngredientText = rawIngredientText,
-            usageEstimate = UsageEstimateCalculator.estimateTextWorkflow(
-                modelId = modelId,
-                ingredientText = rawIngredientText,
-                problemIngredientCount = ingredientList.ultraProcessedIngredients.size,
-                allergenCount = allergens.allergens.size,
-            ),
+            usageEstimate = usageEstimate,
         )
         onStage(AnalysisStage.Completed)
         return Result.success(

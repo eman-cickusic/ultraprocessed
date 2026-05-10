@@ -249,8 +249,6 @@ dependencies {
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
-// DataStore
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
 // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 // Security Crypto (Keystore)

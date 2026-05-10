@@ -10,21 +10,21 @@ class MultiProviderFoodLabelLlmWorkflow(
         extraction: IngredientExtraction,
         modelId: String,
         onStatus: (String) -> Unit,
-    ): Result<NovaClassification> =
+    ): Result<LlmStageResult<NovaClassification>> =
         workflowFor(modelId).classifyNova(extraction, modelId, onStatus)
 
     override suspend fun analyzeIngredientList(
         extraction: IngredientExtraction,
         modelId: String,
         onStatus: (String) -> Unit,
-    ): Result<IngredientListAnalysis> =
+    ): Result<LlmStageResult<IngredientListAnalysis>> =
         workflowFor(modelId).analyzeIngredientList(extraction, modelId, onStatus)
 
     override suspend fun detectAllergens(
         correctedIngredientNames: List<String>,
         modelId: String,
         onStatus: (String) -> Unit,
-    ): Result<AllergenDetection> =
+    ): Result<LlmStageResult<AllergenDetection>> =
         workflowFor(modelId).detectAllergens(correctedIngredientNames, modelId, onStatus)
 
     private fun workflowFor(modelId: String): FoodLabelLlmWorkflow {

@@ -529,7 +529,7 @@ private fun historyUsageLine(item: HistoryItemUi): String =
         listOfNotNull(
             item.modelName.takeIf { it.isNotBlank() },
             if (item.estimatedTokens > 0) "${formatTokens(item.estimatedTokens)} tokens" else null,
-            if (item.estimatedCostUsd > 0.0) "${formatMoney(item.estimatedCostUsd)} est." else null,
+            if (item.estimatedCostUsd > 0.0) formatMoney(item.estimatedCostUsd) else null,
         ).joinToString(" · ")
     }
 

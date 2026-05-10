@@ -62,7 +62,8 @@ sequenceDiagram
     Activity->>App: setContent()
     App->>Splash: render branded loading screen
     Splash-->>App: complete after configured duration
-    App->>Scanner: show scanner home screen
+    App->>App: show disclaimer if not accepted
+    App->>Scanner: show scanner home screen after acceptance
 ```
 
 The system splash is configured through:
@@ -86,7 +87,9 @@ System back and Android edge-swipe gestures are intercepted with Compose `BackHa
 ```mermaid
 stateDiagram-v2
     [*] --> Splash
-    Splash --> Scanner
+    Splash --> Disclaimer: first launch
+    Splash --> Scanner: already accepted
+    Disclaimer --> Scanner: I agree + Next
     Scanner --> Analyzing: scan label / upload photo / scan barcode
     Scanner --> Settings
     Scanner --> History
@@ -101,6 +104,7 @@ stateDiagram-v2
 ```
 
 The owner of this flow is `ui/UltraProcessedApp.kt`.
+The first-run disclaimer is also owned here: `AppPreferences.disclaimerAccepted` decides whether the user sees `DisclaimerScreen` after the splash. Settings can open the same disclaimer screen later.
 
 Current limitation: this is still not a true navigation stack. `UltraProcessedApp` tracks one `destination` plus a lightweight `previousDestination` for Settings and History. See [09-todo-roadmap.md](09-todo-roadmap.md) for the centralized navigation stack v2 task.
 

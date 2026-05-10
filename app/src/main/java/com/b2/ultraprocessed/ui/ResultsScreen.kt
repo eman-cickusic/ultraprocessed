@@ -16,28 +16,24 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -50,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,13 +55,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.b2.ultraprocessed.R
 import com.b2.ultraprocessed.ui.theme.DarkBg
-import com.b2.ultraprocessed.ui.theme.DarkerBg
 import com.b2.ultraprocessed.ui.theme.Amber400
 import com.b2.ultraprocessed.ui.theme.Emerald500
+import com.b2.ultraprocessed.ui.audio.AppSoundEvent
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -73,6 +71,7 @@ fun ResultsScreen(
     onScanAgain: () -> Unit,
     onOpenHistory: () -> Unit,
     chatEnabled: Boolean,
+    onSoundEffect: (AppSoundEvent) -> Unit = {},
     onAskAboutResult: suspend (String, (String) -> Unit) -> Result<com.b2.ultraprocessed.network.llm.ResultChatReply>,
 ) {
     val scrollState = rememberScrollState()
@@ -108,7 +107,7 @@ fun ResultsScreen(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(scrollState)
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 24.dp),
         ) {
             if (result.isBarcodeLookupOnly) {
                 BarcodeLookupResultBody(result = result)
@@ -116,71 +115,12 @@ fun ResultsScreen(
                 FullAnalysisResultBody(
                     result = result,
                     chatEnabled = chatEnabled,
+                    onSoundEffect = onSoundEffect,
                     onAskAboutResult = onAskAboutResult,
                 )
             }
 
             Spacer(modifier = Modifier.height(36.dp))
-        }
-
-        Surface(
-            color = DarkerBg,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                Button(
-                    onClick = onScanAgain,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Emerald500),
-                ) {
-                    Text(
-                        text = if (result.isBarcodeLookupOnly) {
-                            stringResource(R.string.results_scan_again)
-                        } else {
-                            stringResource(R.string.results_scan_another_label)
-                        },
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedButton(
-                    onClick = onOpenHistory,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(16.dp),
-                ) {
-                    Icon(Icons.Default.History, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.results_open_history))
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                AppFooter()
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(4.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .width(112.dp)
-                            .height(4.dp)
-                            .background(Color.White.copy(alpha = 0.1f), CircleShape),
-                    )
-                }
-            }
         }
     }
 }
@@ -243,11 +183,11 @@ private fun BarcodeLookupResultBody(result: ScanResultUi) {
 private fun FullAnalysisResultBody(
     result: ScanResultUi,
     chatEnabled: Boolean,
+    onSoundEffect: (AppSoundEvent) -> Unit,
     onAskAboutResult: suspend (String, (String) -> Unit) -> Result<com.b2.ultraprocessed.network.llm.ResultChatReply>,
 ) {
     val verdict = verdictColors(result.novaGroup)
-    val confidenceLabel = confidenceBandLabel(result.confidence)
-    val headline = shopperHeadline(result.novaGroup)
+    val headline = novaStaticComment(result.novaGroup, result.analyzedAtMillis)
     val ingredientItems = remember(result.ingredientAssessments) {
         result.ingredientAssessments
             .sortedWith(compareBy<IngredientBubbleUi> { it.novaGroup }.thenBy { it.name.lowercase() })
@@ -258,41 +198,12 @@ private fun FullAnalysisResultBody(
         color = Color.White.copy(alpha = 0.92f),
         fontSize = UiTextSizes.ScreenTitle,
         fontWeight = FontWeight.SemiBold,
-        lineHeight = 20.sp,
+        lineHeight = 24.sp,
     )
-    Spacer(modifier = Modifier.height(8.dp))
-    Surface(
-        color = Color.White.copy(alpha = 0.04f),
-        shape = RoundedCornerShape(16.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.06f)),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            UiMetaLine(
-                label = stringResource(R.string.results_source_label),
-                value = result.sourceLabel,
-            )
-            if (!result.brandOwner.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(6.dp))
-                UiMetaLine(
-                    label = stringResource(R.string.results_brand_label),
-                    value = result.brandOwner.orEmpty(),
-                )
-            }
-            if (!result.scannedBarcode.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(6.dp))
-                UiMetaLine(
-                    label = stringResource(R.string.results_barcode_label),
-                    value = result.scannedBarcode.orEmpty(),
-                )
-            }
-        }
-    }
-
     Spacer(modifier = Modifier.height(16.dp))
     ScannedLabelPhotoSection(imagePath = result.labelImagePath)
 
-    Spacer(modifier = Modifier.height(18.dp))
+    Spacer(modifier = Modifier.height(16.dp))
 
     Surface(
         color = verdict.cardColor,
@@ -321,10 +232,19 @@ private fun FullAnalysisResultBody(
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
-                text = verdict.label,
+                text = "NOVA ${result.novaGroup}",
                 color = verdict.textColor,
                 fontSize = UiTextSizes.Display,
                 fontWeight = FontWeight.ExtraBold,
+            )
+            Text(
+                text = verdict.label,
+                color = Color.White.copy(alpha = 0.58f),
+                fontSize = UiTextSizes.BodySmall,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                lineHeight = 18.sp,
+                modifier = Modifier.padding(top = 4.dp),
             )
             Text(
                 text = headline,
@@ -335,22 +255,6 @@ private fun FullAnalysisResultBody(
                 lineHeight = 18.sp,
                 modifier = Modifier.padding(top = 8.dp, start = 4.dp, end = 4.dp),
             )
-            Spacer(modifier = Modifier.height(14.dp))
-            Text(
-                text = "NOVA ${result.novaGroup} · ${verdict.subLabel}",
-                color = Color.White.copy(alpha = 0.32f),
-                fontSize = UiTextSizes.Caption,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.6.sp,
-            )
-            Text(
-                text = "$confidenceLabel signal (${(result.confidence * 100).toInt()}%)",
-                color = Color.White.copy(alpha = 0.28f),
-                fontSize = UiTextSizes.Caption,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp),
-            )
         }
     }
 
@@ -358,7 +262,7 @@ private fun FullAnalysisResultBody(
 
     AnalysisOneLinerBlock(summary = result.summary)
 
-    Spacer(modifier = Modifier.height(18.dp))
+    Spacer(modifier = Modifier.height(16.dp))
 
     Surface(
         color = Color.White.copy(alpha = 0.04f),
@@ -384,6 +288,7 @@ private fun FullAnalysisResultBody(
         enabled = chatEnabled,
         onAskAboutResult = onAskAboutResult,
         result = result,
+        onSoundEffect = onSoundEffect,
     )
 
     Spacer(modifier = Modifier.height(16.dp))
@@ -392,7 +297,7 @@ private fun FullAnalysisResultBody(
         text = stringResource(R.string.results_footer_note),
         color = Color.White.copy(alpha = 0.34f),
         fontSize = UiTextSizes.Caption,
-        lineHeight = 16.sp,
+        lineHeight = 14.sp,
     )
 }
 
@@ -406,10 +311,10 @@ private fun AnalysisOneLinerBlock(summary: String) {
     ) {
         Text(
             text = summary,
-            color = Color.White.copy(alpha = 0.68f),
-            fontSize = UiTextSizes.Body,
-            lineHeight = 20.sp,
-            modifier = Modifier.padding(16.dp),
+            color = Color.White.copy(alpha = 0.58f),
+            fontSize = UiTextSizes.Caption,
+            lineHeight = 14.sp,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
         )
     }
 }
@@ -463,19 +368,6 @@ private fun decodeSampledBitmap(path: String, maxSidePx: Int): Bitmap? {
     return BitmapFactory.decodeFile(path, opts)
 }
 
-private fun confidenceBandLabel(confidence: Float): String = when {
-    confidence >= 0.75f -> "Strong"
-    confidence >= 0.55f -> "Moderate"
-    else -> "Low"
-}
-
-private fun shopperHeadline(novaGroup: Int): String = when (novaGroup) {
-    1 -> "Likely a simpler choice—fewer industrial additives flagged on this list."
-    2 -> "Culinary ingredient territory—useful in cooking, but usually not a snack by itself."
-    3 -> "Processed—recognizable, but still worth comparing with shorter ingredient lists."
-    else -> "High ultra-processing risk on this label—worth swapping if you want to cut UPFs."
-}
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun IngredientChips(
@@ -483,10 +375,10 @@ private fun IngredientChips(
 ) {
     if (items.isEmpty()) {
         Text(
-        text = stringResource(R.string.results_no_ingredient_nova),
-        color = Color.White.copy(alpha = 0.38f),
-        fontSize = UiTextSizes.BodySmall,
-        lineHeight = 16.sp,
+            text = stringResource(R.string.results_no_ingredient_nova),
+            color = Color.White.copy(alpha = 0.38f),
+            fontSize = UiTextSizes.Caption,
+            lineHeight = 14.sp,
         )
         return
     }
@@ -618,13 +510,119 @@ private fun String.toReadableToken(): String {
     return String(chars)
 }
 
+private fun novaStaticComment(novaGroup: Int, seed: Long): String {
+    val options = when (novaGroup) {
+        1 -> NOVA_1_COMMENTS
+        2 -> NOVA_2_COMMENTS
+        3 -> NOVA_3_COMMENTS
+        else -> NOVA_4_COMMENTS
+    }
+    val index = (seed.takeIf { it != 0L } ?: novaGroup.toLong())
+        .mod(options.size)
+    return options[index]
+}
+
+private val NOVA_1_COMMENTS = listOf(
+    "A clean-label direction with minimal processing signals.",
+    "Closest to whole-food territory in the NOVA framework.",
+    "A simpler processing profile than most packaged options.",
+    "Minimal processing signals make this the lightest NOVA tier.",
+    "This classification points toward basic, recognizable food handling.",
+    "A lower-processing result with fewer industrial cues.",
+    "The ingredient evidence fits a minimally processed pattern.",
+    "A straightforward profile with limited formulation complexity.",
+    "This sits near the fresh-and-simple end of the scale.",
+    "Processing appears restrained by NOVA standards.",
+    "A short path from source food to label.",
+    "The label evidence stays close to minimally processed food.",
+    "A calmer ingredient profile with limited industrial intervention.",
+    "This result suggests simplicity is doing the heavy lifting.",
+    "A favorable processing class for shoppers avoiding complexity.",
+    "Minimal-processing evidence is the main story here.",
+    "A practical green-light category from a processing lens.",
+    "This reads more like food than formulation.",
+    "The NOVA signal is comparatively gentle here.",
+    "A simpler classification with fewer processing red flags.",
+)
+
+private val NOVA_2_COMMENTS = listOf(
+    "A culinary ingredient classification, useful mainly in cooking.",
+    "This belongs more in the pantry than the snack aisle.",
+    "A cooking-helper profile rather than a complete food verdict.",
+    "The NOVA signal points to extracted or prepared culinary basics.",
+    "Best understood as an ingredient used to make other foods.",
+    "This is processing for preparation, not necessarily formulation.",
+    "A kitchen-building-block classification.",
+    "The evidence fits seasoning, cooking, or preparation use.",
+    "This category is about culinary function, not meal completeness.",
+    "A pantry-style NOVA result with a narrow role.",
+    "Think cooking input, not finished-product assessment.",
+    "The processing signal is functional and culinary.",
+    "This sits in the ingredient-support tier of NOVA.",
+    "A simple culinary ingredient profile.",
+    "Useful context: this class is usually consumed with other foods.",
+    "This classification flags a cooking component.",
+    "A refined or extracted ingredient, not a full food evaluation.",
+    "The NOVA pattern suggests preparation utility.",
+    "A category for things that help build meals.",
+    "Culinary ingredient territory: context matters.",
+)
+
+private val NOVA_3_COMMENTS = listOf(
+    "A processed food profile with recognizable ingredients.",
+    "Processing is present, but not automatically ultra-processed.",
+    "This sits in the middle: convenient, but worth comparing.",
+    "A familiar processed-food classification.",
+    "Recognizable ingredients with added processing steps.",
+    "This result suggests preservation or preparation beyond basics.",
+    "A moderate processing signal in NOVA terms.",
+    "Not the simplest tier, not the most industrial tier.",
+    "A reasonable place to compare labels side by side.",
+    "The evidence points to processed, not necessarily ultra-processed.",
+    "This category often rewards shorter ingredient lists.",
+    "A processed result where formulation details still matter.",
+    "A middle-tier classification with room for judgment.",
+    "Processing is doing some work here.",
+    "This lands in a practical watch-and-compare zone.",
+    "A processed-food signal with recognizable structure.",
+    "The label suggests added culinary ingredients or preservation.",
+    "A moderate NOVA class: not a free pass, not a panic button.",
+    "This is where ingredient-list length starts to matter.",
+    "A balanced classification that benefits from label comparison.",
+)
+
+private val NOVA_4_COMMENTS = listOf(
+    "A strong ultra-processing signal worth a closer look.",
+    "This classification points to industrial formulation territory.",
+    "A high-processing result for shoppers trying to reduce UPFs.",
+    "The NOVA signal suggests more formulation than simple cooking.",
+    "This is the class to compare carefully against simpler options.",
+    "Ultra-processed territory: convenience may be doing the talking.",
+    "A heavier processing profile by NOVA standards.",
+    "This result suggests industrial ingredients or additive systems.",
+    "A clear prompt to check for shorter-label alternatives.",
+    "The processing signal is strong enough to slow down and compare.",
+    "This sits at the most processed end of the NOVA scale.",
+    "A formulation-heavy classification.",
+    "This is where the label deserves a second read.",
+    "A high-UPF signal without needing nutrition-panel gymnastics.",
+    "The ingredient evidence points beyond ordinary kitchen processing.",
+    "A strong candidate for swap-or-compare shopping.",
+    "This classification suggests complexity is carrying the product.",
+    "Ultra-processed by pattern, not by vibes.",
+    "A red-tier processing result from the label evidence.",
+    "This is the NOVA group most shoppers use as a caution flag.",
+)
+
 @Composable
 private fun ResultChatSection(
     enabled: Boolean,
     result: ScanResultUi,
+    onSoundEffect: (AppSoundEvent) -> Unit,
     onAskAboutResult: suspend (String, (String) -> Unit) -> Result<com.b2.ultraprocessed.network.llm.ResultChatReply>,
 ) {
     val scope = rememberCoroutineScope()
+    val chatScrollState = rememberScrollState()
     var input by remember(result.productName, result.rawIngredientText, result.summary) { mutableStateOf("") }
     var isSending by remember(result.productName, result.rawIngredientText, result.summary) { mutableStateOf(false) }
     var statusMessage by remember(result.productName, result.rawIngredientText, result.summary) { mutableStateOf<String?>(null) }
@@ -633,6 +631,12 @@ private fun ResultChatSection(
     val messages = remember(result.productName, result.rawIngredientText, result.summary) {
         mutableStateListOf<ResultChatMessageUi>()
     }
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) {
+            delay(60)
+            chatScrollState.animateScrollTo(chatScrollState.maxValue)
+        }
+    }
 
     Surface(
         color = Color.White.copy(alpha = 0.04f),
@@ -640,27 +644,24 @@ private fun ResultChatSection(
         border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.06f)),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+            UiSectionHeader(
                 text = stringResource(R.string.results_chat_section),
-                color = Color.White.copy(alpha = 0.82f),
-                fontSize = UiTextSizes.Body,
-                fontWeight = FontWeight.SemiBold,
             )
 
             if (messages.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(12.dp))
                 Surface(
                     color = Color.White.copy(alpha = 0.03f),
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 180.dp),
+                        .heightIn(max = 156.dp),
                 ) {
                     Column(
                         modifier = Modifier
-                            .padding(12.dp)
-                            .verticalScroll(rememberScrollState()),
+                            .padding(10.dp)
+                            .verticalScroll(chatScrollState)
+                            .testTag(AppTestTags.RESULT_CHAT_MESSAGES),
                     ) {
                         messages.forEach { message ->
                             ChatMessageBubble(message = message)
@@ -680,33 +681,58 @@ private fun ResultChatSection(
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                OutlinedTextField(
-                    value = input,
-                    onValueChange = { input = it },
-                    enabled = enabled && !isSending,
-                    modifier = Modifier.weight(1f),
-                    placeholder = {
-                        Text(
-                            text = if (enabled) {
-                                stringResource(R.string.results_chat_placeholder_enabled)
-                            } else {
-                                stringResource(R.string.results_chat_placeholder_disabled)
-                            },
-                        )
-                    },
-                    singleLine = true,
+                Surface(
+                    color = Color.Transparent,
                     shape = RoundedCornerShape(999.dp),
-                )
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x4438BDF8)),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp)
+                        .testTag(AppTestTags.RESULT_CHAT_INPUT),
+                ) {
+                    Box(
+                        modifier = Modifier.padding(horizontal = 18.dp),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
+                        BasicTextField(
+                            value = input,
+                            onValueChange = { input = it },
+                            enabled = enabled && !isSending,
+                            singleLine = true,
+                            textStyle = androidx.compose.ui.text.TextStyle(
+                                color = Color.White.copy(alpha = 0.84f),
+                                fontSize = UiTextSizes.Caption,
+                                lineHeight = 13.sp,
+                            ),
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        if (input.isBlank()) {
+                            Text(
+                                text = if (enabled) {
+                                    stringResource(R.string.results_chat_placeholder_enabled)
+                                } else {
+                                    stringResource(R.string.results_chat_placeholder_disabled)
+                                },
+                                color = Color.White.copy(alpha = 0.62f),
+                                fontSize = UiTextSizes.Caption,
+                                lineHeight = 13.sp,
+                            )
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.width(8.dp))
                 IconButton(
                     onClick = {
                         val question = input.trim()
                         if (!enabled || isSending || question.isBlank()) return@IconButton
+                        onSoundEffect(AppSoundEvent.Click)
                         messages.add(
                             ResultChatMessageUi(
                                 id = "u${messages.size}",
@@ -725,6 +751,7 @@ private fun ResultChatSection(
                             }
                             isSending = false
                             reply.onSuccess { resultReply ->
+                                onSoundEffect(AppSoundEvent.Success)
                                 messages.add(
                                     ResultChatMessageUi(
                                         id = "a${messages.size}",
@@ -735,6 +762,7 @@ private fun ResultChatSection(
                                 )
                                 statusMessage = null
                             }.onFailure { error ->
+                                onSoundEffect(AppSoundEvent.Error)
                                 messages.add(
                                     ResultChatMessageUi(
                                         id = "e${messages.size}",
@@ -750,6 +778,9 @@ private fun ResultChatSection(
                         }
                     },
                     enabled = enabled && !isSending,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .testTag(AppTestTags.RESULT_CHAT_SEND),
                 ) {
                     if (isSending) {
                         CircularProgressIndicator(
@@ -805,9 +836,9 @@ private fun ChatMessageBubble(message: ResultChatMessageUi) {
             Text(
                 text = message.text,
                 color = palette.text,
-                fontSize = UiTextSizes.BodySmall,
-                lineHeight = 15.sp,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                fontSize = UiTextSizes.Caption,
+                lineHeight = 13.sp,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             )
         }
     }
@@ -817,12 +848,10 @@ private data class ChatPalette(
     val fill: Color,
     val border: Color,
     val text: Color,
-    val dot: Color = text,
 )
 
 private data class VerdictPalette(
     val label: String,
-    val subLabel: String,
     val cardColor: Color,
     val borderColor: Color,
     val pillColor: Color,
@@ -833,7 +862,6 @@ private fun verdictColors(novaGroup: Int): VerdictPalette =
     when (novaGroup) {
         1 -> VerdictPalette(
             label = "Unprocessed",
-            subLabel = "NOVA 1",
             cardColor = Color(0x1622C55E),
             borderColor = Color(0x4422C55E),
             pillColor = Color(0x2422C55E),
@@ -841,7 +869,6 @@ private fun verdictColors(novaGroup: Int): VerdictPalette =
         )
         2 -> VerdictPalette(
             label = "Culinary Ingredient",
-            subLabel = "NOVA 2",
             cardColor = Color(0x14FACC15),
             borderColor = Color(0x44FACC15),
             pillColor = Color(0x22FACC15),
@@ -849,7 +876,6 @@ private fun verdictColors(novaGroup: Int): VerdictPalette =
         )
         3 -> VerdictPalette(
             label = "Processed",
-            subLabel = "NOVA 3",
             cardColor = Color(0x16FB923C),
             borderColor = Color(0x44FB923C),
             pillColor = Color(0x24FB923C),
@@ -857,7 +883,6 @@ private fun verdictColors(novaGroup: Int): VerdictPalette =
         )
         else -> VerdictPalette(
             label = "Ultra-Processed",
-            subLabel = "NOVA 4",
             cardColor = Color(0x16EF4444),
             borderColor = Color(0x44EF4444),
             pillColor = Color(0x24EF4444),

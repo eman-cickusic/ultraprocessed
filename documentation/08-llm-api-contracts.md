@@ -9,7 +9,7 @@ This document is the source of truth for every model call in Zest. It covers:
 
 The runtime is API-only for analysis, classification, allergen detection, and result chat. The app does not use rule-based classification as a production fallback.
 
-Usage and cost values shown in History are currently app estimates. If an LLM provider response includes reliable usage metadata in the future, the provider workflow should map that data into the same Room fields and this document should be updated with the exact provider-specific source.
+Usage and cost values shown in History use provider usage metadata when the API response includes it. OpenAI-compatible responses read `usage.prompt_tokens`, `usage.completion_tokens`, and `usage.total_tokens`; Gemini responses read `usageMetadata.promptTokenCount`, `usageMetadata.candidatesTokenCount`, and `usageMetadata.totalTokenCount`. If a provider omits usage metadata, the app falls back to the local estimate.
 
 ## Files
 
@@ -324,4 +324,4 @@ If a payload cannot be parsed or validated, the user should see a clean analysis
 - Ingredient chip text should come from atomic ingredient names only.
 - Allergen strings should be atomic allergen names only.
 - Result chat is labeled as chat about the current scan and should stay scoped to that scan.
-- History cost and token rows should label estimated values honestly until exact provider usage metadata is persisted.
+- History cost and token rows should use exact provider usage metadata when available, with local estimates only as a fallback for providers that omit usage.

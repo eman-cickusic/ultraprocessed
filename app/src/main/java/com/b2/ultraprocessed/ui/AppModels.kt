@@ -107,6 +107,7 @@ data class HistoryUsageSummaryUi(
 
 enum class AppDestination {
     Splash,
+    Disclaimer,
     Scanner,
     Analyzing,
     Results,

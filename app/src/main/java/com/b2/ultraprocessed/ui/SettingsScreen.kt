@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -55,6 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -120,8 +122,10 @@ fun SettingsScreen(
     onLlmApiKeyDeleted: suspend () -> Boolean,
     onModelSelected: (String) -> Unit,
     onSoundEffectsChanged: (Boolean) -> Unit,
+    onOpenDisclaimer: () -> Unit,
 ) {
     val selectedModel = modelOptions.firstOrNull { it.id == selectedModelId } ?: modelOptions.firstOrNull()
+    val uriHandler = LocalUriHandler.current
 
     LaunchedEffect(selectedModelId, modelOptions) {
         if (selectedModel == null && modelOptions.isNotEmpty()) {
@@ -141,7 +145,8 @@ fun SettingsScreen(
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
                 .imePadding()
-                .padding(horizontal = SettingsMetrics.ScreenPadding),
+                .padding(horizontal = SettingsMetrics.ScreenPadding)
+                .padding(top = SettingsMetrics.Space2),
         ) {
             UiSectionHeader(text = stringResource(R.string.settings_llm_key_section), icon = Icons.Default.Key)
             SecureApiKeyCard(
@@ -165,12 +170,13 @@ fun SettingsScreen(
                 onDelete = onLlmApiKeyDeleted,
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(SettingsMetrics.Space2))
 
             UiSectionHeader(text = stringResource(R.string.settings_sound_title), icon = Icons.AutoMirrored.Filled.VolumeUp)
             Surface(
                 color = Color.White.copy(alpha = 0.03f),
                 shape = RoundedCornerShape(SettingsMetrics.CardRadius),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.07f)),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Row(
@@ -203,12 +209,13 @@ fun SettingsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(SettingsMetrics.Space2))
 
             UiSectionHeader(text = stringResource(R.string.settings_app_features_section), icon = Icons.Default.Info)
             Surface(
                 color = Color.White.copy(alpha = 0.03f),
                 shape = RoundedCornerShape(SettingsMetrics.CardRadius),
+                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.07f)),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -224,18 +231,18 @@ fun SettingsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(SettingsMetrics.Space2))
 
             Surface(
-                color = Emerald500.copy(alpha = 0.05f),
+                color = Color.White.copy(alpha = 0.035f),
                 shape = RoundedCornerShape(SettingsMetrics.CardRadius),
-                border = BorderStroke(1.dp, Emerald500.copy(alpha = 0.12f)),
+                border = BorderStroke(1.dp, Emerald500.copy(alpha = 0.14f)),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = stringResource(R.string.settings_privacy_title),
-                        color = Emerald400.copy(alpha = 0.7f),
+                        color = Emerald400.copy(alpha = 0.82f),
                         fontFamily = SpaceGroteskFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = SettingsType.Title,
@@ -243,14 +250,38 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = stringResource(R.string.settings_privacy_body),
-                        color = Color.White.copy(alpha = 0.34f),
+                        color = Color.White.copy(alpha = 0.42f),
                         fontSize = SettingsType.Body,
-                        lineHeight = 19.sp,
+                        lineHeight = 18.sp,
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(SettingsMetrics.Space2))
+
+            UiSectionHeader(
+                text = stringResource(R.string.settings_disclaimer_link_title),
+                icon = Icons.Default.Info,
+            )
+            SettingsActionCard(
+                description = stringResource(R.string.settings_disclaimer_link_body),
+                icon = Icons.Default.Info,
+                onClick = onOpenDisclaimer,
+            )
+
+            Spacer(modifier = Modifier.height(SettingsMetrics.Space2))
+
+            UiSectionHeader(
+                text = stringResource(R.string.settings_repo_link_title),
+                icon = Icons.AutoMirrored.Filled.OpenInNew,
+            )
+            SettingsActionCard(
+                description = ZEST_REPOSITORY_URL,
+                icon = Icons.AutoMirrored.Filled.OpenInNew,
+                onClick = { uriHandler.openUri(ZEST_REPOSITORY_URL) },
+            )
+
+            Spacer(modifier = Modifier.height(SettingsMetrics.Space3))
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -272,15 +303,58 @@ fun SettingsScreen(
 }
 
 @Composable
+private fun SettingsActionCard(
+    description: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        color = Color.White.copy(alpha = 0.035f),
+        shape = RoundedCornerShape(SettingsMetrics.CardRadius),
+        border = BorderStroke(1.dp, Emerald500.copy(alpha = 0.14f)),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.Top,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(34.dp)
+                    .background(Emerald500.copy(alpha = 0.10f), RoundedCornerShape(11.dp)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = Emerald400.copy(alpha = 0.74f),
+                    modifier = Modifier.size(17.dp),
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = description,
+                    color = Color.White.copy(alpha = 0.56f),
+                    fontSize = SettingsType.Body,
+                    lineHeight = 18.sp,
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun SettingsHeader(onBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
             .padding(
-                start = SettingsMetrics.Space2,
+                start = SettingsMetrics.ScreenPadding,
                 top = SettingsMetrics.Space2,
-                end = SettingsMetrics.Space2,
+                end = SettingsMetrics.ScreenPadding,
                 bottom = SettingsMetrics.Grid,
             ),
         verticalAlignment = Alignment.CenterVertically,

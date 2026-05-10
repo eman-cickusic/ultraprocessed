@@ -7,19 +7,42 @@ interface FoodLabelLlmWorkflow {
         extraction: IngredientExtraction,
         modelId: String,
         onStatus: (String) -> Unit = {},
-    ): Result<NovaClassification>
+    ): Result<LlmStageResult<NovaClassification>>
 
     suspend fun analyzeIngredientList(
         extraction: IngredientExtraction,
         modelId: String,
         onStatus: (String) -> Unit = {},
-    ): Result<IngredientListAnalysis>
+    ): Result<LlmStageResult<IngredientListAnalysis>>
 
     suspend fun detectAllergens(
         correctedIngredientNames: List<String>,
         modelId: String,
         onStatus: (String) -> Unit = {},
-    ): Result<AllergenDetection>
+    ): Result<LlmStageResult<AllergenDetection>>
+}
+
+data class LlmStageResult<T>(
+    val value: T,
+    val usage: LlmUsage? = null,
+)
+
+data class LlmUsage(
+    val inputTokens: Int,
+    val outputTokens: Int,
+    val totalTokens: Int,
+) {
+    companion object {
+        fun aggregate(usages: Iterable<LlmUsage?>): LlmUsage? {
+            val present = usages.filterNotNull()
+            if (present.isEmpty()) return null
+            return LlmUsage(
+                inputTokens = present.sumOf { it.inputTokens.coerceAtLeast(0) },
+                outputTokens = present.sumOf { it.outputTokens.coerceAtLeast(0) },
+                totalTokens = present.sumOf { it.totalTokens.coerceAtLeast(0) },
+            )
+        }
+    }
 }
 
 data class IngredientExtraction(

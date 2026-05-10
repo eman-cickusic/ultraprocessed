@@ -93,6 +93,9 @@ fun UltraProcessedApp(
     var currentScanResult by remember { mutableStateOf<ScanResultUi?>(null) }
     var destination by rememberSaveable { mutableStateOf(AppDestination.Splash) }
     var previousDestination by rememberSaveable { mutableStateOf<AppDestination?>(null) }
+    var hasAcceptedDisclaimer by rememberSaveable {
+        mutableStateOf(appPreferences.disclaimerAccepted)
+    }
     val splashDurationMillis = if (soundEffectsEnabled) {
         soundManager.startupCueDurationMillis.takeIf { it > 0L } ?: timingConfig.splashDurationMillis
     } else {
@@ -119,6 +122,15 @@ fun UltraProcessedApp(
     fun navigateBackWithinApp() {
         when (destination) {
             AppDestination.Splash -> Unit
+            AppDestination.Disclaimer -> {
+                if (hasAcceptedDisclaimer) {
+                    val target = previousDestination
+                        ?.takeUnless { it == AppDestination.Splash || it == AppDestination.Analyzing }
+                        ?: AppDestination.Scanner
+                    previousDestination = null
+                    destination = target
+                }
+            }
             AppDestination.Scanner -> Unit
             AppDestination.Analyzing -> navigateTo(AppDestination.Scanner)
             AppDestination.Results -> navigateTo(AppDestination.Scanner)
@@ -195,7 +207,32 @@ fun UltraProcessedApp(
                     AppDestination.Splash -> SplashScreen(
                         displayDurationMillis = splashDurationMillis,
                         onSoundEffect = { event -> playSound(event) },
-                        onComplete = { navigateTo(AppDestination.Scanner) },
+                        onComplete = {
+                            navigateTo(
+                                if (hasAcceptedDisclaimer) {
+                                    AppDestination.Scanner
+                                } else {
+                                    AppDestination.Disclaimer
+                                },
+                            )
+                        },
+                    )
+
+                    AppDestination.Disclaimer -> DisclaimerScreen(
+                        navigationAction = if (hasAcceptedDisclaimer) {
+                            backHeaderAction { navigateBackWithinApp() }
+                        } else {
+                            null
+                        },
+                        onAccepted = {
+                            appPreferences.disclaimerAccepted = true
+                            hasAcceptedDisclaimer = true
+                            val target = previousDestination
+                                ?.takeUnless { it == AppDestination.Splash || it == AppDestination.Analyzing }
+                                ?: AppDestination.Scanner
+                            previousDestination = null
+                            navigateTo(target)
+                        },
                     )
 
                     AppDestination.Scanner -> ScannerScreen(
@@ -286,6 +323,7 @@ fun UltraProcessedApp(
                                     navigateTo(AppDestination.History, rememberCurrentForBack = true)
                                 },
                                 chatEnabled = hasLlmApiKey,
+                                onSoundEffect = { event -> playSound(event) },
                                 onAskAboutResult = { question, onStatus ->
                                     val current = currentScanResult
                                     if (current == null) {
@@ -419,6 +457,9 @@ fun UltraProcessedApp(
                         onSoundEffectsChanged = { enabled ->
                             soundEffectsEnabled = enabled
                             appPreferences.soundEffectsEnabled = enabled
+                        },
+                        onOpenDisclaimer = {
+                            navigateTo(AppDestination.Disclaimer, rememberCurrentForBack = true)
                         },
                     )
 

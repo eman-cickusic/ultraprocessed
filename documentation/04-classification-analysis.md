@@ -207,11 +207,11 @@ For the full API request/response contract, see [08-llm-api-contracts.md](08-llm
 - `correctedIngredients` becomes the ingredient chip list.
 - `ultraProcessedIngredients` becomes `problemIngredients` and marks matching chips as red.
 - `allergens` becomes a separate allergen block.
-- `UsageEstimateCalculator` estimates input tokens, output tokens, total tokens, and cost for history summaries.
+- `UsageEstimateCalculator` maps provider-reported input tokens, output tokens, total tokens, and cost for history summaries when available, and estimates only when provider usage metadata is absent.
 
 ## Usage And Cost Metadata
 
-History currently displays app-estimated usage values. The estimate is useful for product feedback and local tracking, but it is not exact billing telemetry unless a provider workflow is extended to return provider usage metadata.
+History displays provider-reported usage values when the model API includes usage metadata. If a provider omits usage metadata, the app falls back to a local estimate so history still has useful cost visibility.
 
 ```mermaid
 flowchart LR

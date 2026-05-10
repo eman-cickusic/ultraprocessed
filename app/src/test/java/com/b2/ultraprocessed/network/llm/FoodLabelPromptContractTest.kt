@@ -15,7 +15,7 @@ class FoodLabelPromptContractTest {
         assertTrue(prompt.contains("Do not detect allergens", ignoreCase = true))
         assertTrue(prompt.contains("novaGroup", ignoreCase = true))
         assertTrue(prompt.contains("Do not use a generic default NOVA group", ignoreCase = true))
-        assertTrue(prompt.contains("witty but polite and professional one-liner", ignoreCase = true))
+        assertTrue(prompt.contains("human-friendly shopper takeaway", ignoreCase = true))
         assertTrue(prompt.contains("surrounding package text", ignoreCase = true))
     }
 

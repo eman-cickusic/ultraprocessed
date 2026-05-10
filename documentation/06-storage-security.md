@@ -42,6 +42,7 @@ Rules:
 Current preferences:
 
 - Sound effects enabled or disabled.
+- Disclaimer accepted or not accepted.
 
 This data is safe to keep in normal app preferences because it does not contain credentials, health data, or scan content.
 
@@ -155,4 +156,4 @@ It does not display the key itself. USDA access is also stored through `SecretKe
 
 ## History Usage Fields
 
-History rows include estimated token and cost fields. These values are local estimates produced by the app unless a provider workflow is updated to persist exact provider-reported usage.
+History rows include token and cost fields. Provider workflows persist exact provider-reported usage when the API response includes it; local estimates are used only when the provider omits usage metadata.

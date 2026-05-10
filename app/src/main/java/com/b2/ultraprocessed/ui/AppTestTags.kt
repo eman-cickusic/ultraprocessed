@@ -11,4 +11,9 @@ object AppTestTags {
     const val SCANNER_CAPTURE_BUTTON = "scanner_capture_button"
     const val SCANNER_BARCODE_BUTTON = "scanner_barcode_button"
     const val SCANNER_UPLOAD_BUTTON = "scanner_upload_button"
+    const val DISCLAIMER_AGREE = "disclaimer_agree"
+    const val DISCLAIMER_NEXT = "disclaimer_next"
+    const val RESULT_CHAT_INPUT = "result_chat_input"
+    const val RESULT_CHAT_SEND = "result_chat_send"
+    const val RESULT_CHAT_MESSAGES = "result_chat_messages"
 }

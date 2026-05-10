@@ -1,11 +1,23 @@
 package com.b2.ultraprocessed.analysis
 
 import com.b2.ultraprocessed.network.llm.LlmProviderResolver
+import com.b2.ultraprocessed.network.llm.LlmUsage
 import com.b2.ultraprocessed.ui.ModelUsageUi
 import com.b2.ultraprocessed.ui.UsageEstimateUi
 import kotlin.math.ceil
 
 object UsageEstimateCalculator {
+    fun fromProviderUsage(
+        modelId: String,
+        usage: LlmUsage,
+    ): UsageEstimateUi = estimate(
+        modelId = modelId,
+        providerId = providerIdFor(modelId),
+        inputTokens = usage.inputTokens,
+        outputTokens = usage.outputTokens,
+        totalTokensOverride = usage.totalTokens,
+    )
+
     fun estimateTextWorkflow(
         modelId: String,
         ingredientText: String,
@@ -41,13 +53,14 @@ object UsageEstimateCalculator {
         providerId: String,
         inputTokens: Int,
         outputTokens: Int,
+        totalTokensOverride: Int? = null,
     ): UsageEstimateUi {
         val metadata = LlmProviderResolver.metadataFromModelId(modelId)
         val modelName = metadata?.modelName ?: modelId
         val provider = metadata?.provider ?: providerId.replaceFirstChar {
             if (it.isLowerCase()) it.titlecase() else it.toString()
         }
-        val totalTokens = (inputTokens + outputTokens).coerceAtLeast(0)
+        val totalTokens = (totalTokensOverride ?: (inputTokens + outputTokens)).coerceAtLeast(0)
         val pricing = pricingFor(providerId)
         val estimatedCostUsd = ((inputTokens * pricing.inputPerMillion) +
             (outputTokens * pricing.outputPerMillion)) / 1_000_000.0

@@ -37,7 +37,7 @@ data class ScanResult(
     // Human readable explanation of the verdict
     val explanation: String,
 
-    // Which engine produced this result e.g. "rules", "Gemini staged LLM"
+    // Which provider workflow produced this result, for example "Gemini staged LLM".
     val engineUsed: String,
 
     @ColumnInfo(defaultValue = "")

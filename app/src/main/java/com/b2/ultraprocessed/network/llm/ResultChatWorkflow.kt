@@ -442,15 +442,15 @@ private fun parseReply(json: JSONObject): ResultChatReply {
     val allowed = json.requiredBoolean("allowed")
     val answer = json.requiredString("answer")
     val reason = json.optString("reason").trim()
-    if (answer.isBlank()) {
-        throw IOException("Result chat returned an empty answer.")
-    }
     return ResultChatReply(
         allowed = allowed,
-        answer = answer,
+        answer = answer.ifBlank { EMPTY_RESULT_CHAT_TEMPLATE },
         reason = reason,
     )
 }
+
+private const val EMPTY_RESULT_CHAT_TEMPLATE =
+    "I received the scan context, but the assistant did not return a usable sentence. Ask about the NOVA group, flagged ingredients, or allergens and I will keep the answer tied to this scan."
 
 private fun JSONObject.requiredBoolean(name: String): Boolean {
     if (!has(name)) throw IOException("LLM response missing required field '$name'.")

@@ -31,7 +31,9 @@ The UI design system is shared across screens:
 ```mermaid
 stateDiagram-v2
     [*] --> Splash
-    Splash --> Scanner
+    Splash --> Disclaimer: first launch
+    Splash --> Scanner: accepted
+    Disclaimer --> Scanner: I agree + Next
     Scanner --> Analyzing: label, upload, barcode
     Scanner --> Settings
     Scanner --> History
@@ -56,6 +58,7 @@ Current behavior in `UltraProcessedApp.kt`:
 - `AnalysisError`: clears the error message and returns to Scanner.
 - `Analyzing`: returns to Scanner.
 - `Splash`: does not intercept back.
+- `Disclaimer`: blocks first-run progress until `I agree` is checked and `Next` is tapped. When opened from Settings after acceptance, back returns to Settings.
 
 Implementation note: the app tracks `destination` and `previousDestination`. This is intentionally lightweight and should be replaced by a centralized navigation stack in v2. See [09-todo-roadmap.md](09-todo-roadmap.md).
 
@@ -129,6 +132,7 @@ flowchart TB
 - `UltraProcessedApp` owns result-scoped chat wiring and history persistence.
 - `AnalyzingScreen` owns progress and retry-status messaging.
 - `SettingsScreen` owns API key validation and metadata display.
+- `DisclaimerScreen` owns the exact legal/user-responsibility copy and the `I agree` gate.
 - `HistoryScreen` owns the history list presentation, usage summary strip, empty state, and clear-all action.
 - `SplashScreen` owns the branded loading animation only; it does not initialize network clients.
 

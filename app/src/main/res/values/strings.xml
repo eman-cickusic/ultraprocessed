@@ -60,8 +60,11 @@
     <string name="settings_sound_body">Play subtle cues for scan actions, successful analysis, and errors.</string>
     <string name="settings_sound_enabled">Sound effects enabled</string>
     <string name="settings_privacy_title">Privacy-first design</string>
-    <string name="settings_privacy_body">No sign-in required. When an LLM key is saved, label images are sent for ingredient extraction and extracted ingredient text is sent for classification and allergen detection. Scan history stays in local Room DB. API keys are encrypted via Android Keystore. DataStore handles preferences.</string>
+    <string name="settings_privacy_body">No sign-in required. Images stay on device. On-device OCR extracts label text locally, and only extracted text/corrected ingredient names are sent for classification, ingredient analysis, allergen detection, and result chat when an LLM key is saved. Scan history stays in local Room DB. API keys are encrypted via Android Keystore.</string>
     <string name="settings_api_metadata">API metadata</string>
+    <string name="settings_disclaimer_link_title">Disclaimer</string>
+    <string name="settings_disclaimer_link_body">Review the app disclaimer, AI limitations, allergen warning, and user responsibility notice.</string>
+    <string name="settings_repo_link_title">GitHub repository</string>
 
     <!-- History -->
     <string name="history_title">Scan History</string>
@@ -119,7 +122,7 @@
     <string name="scanner_scan_label">Scan Label</string>
     <string name="scanner_scan_barcode">Scan Barcode</string>
     <string name="scanner_upload_photo">Upload Photo</string>
-    <string name="scanner_mode_label">Ingredient Label</string>
+    <string name="scanner_mode_label">Ingredient Scan</string>
     <string name="scanner_mode_barcode">Barcode Scan</string>
     <string name="scanner_mode_label_active">Ingredient label active</string>
     <string name="scanner_mode_barcode_active">Barcode scan active</string>
