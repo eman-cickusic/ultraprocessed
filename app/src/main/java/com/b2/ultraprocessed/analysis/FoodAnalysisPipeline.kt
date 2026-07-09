@@ -17,7 +17,9 @@ import com.b2.ultraprocessed.network.llm.LlmUsage
 import com.b2.ultraprocessed.network.llm.MultiProviderFoodLabelLlmWorkflow
 import com.b2.ultraprocessed.network.llm.NovaClassification
 import com.b2.ultraprocessed.network.llm.OpenAiCompatibleFoodLabelLlmWorkflow
+import com.b2.ultraprocessed.network.llm.ProxyFoodLabelLlmWorkflow
 import com.b2.ultraprocessed.network.llm.SecretLlmApiKeyProvider
+import com.b2.ultraprocessed.network.llm.SelectingFoodLabelLlmWorkflow
 import com.b2.ultraprocessed.network.usda.SecretUsdaApiKeyProvider
 import com.b2.ultraprocessed.network.usda.UsdaHttpClientFactory
 import com.b2.ultraprocessed.network.usda.UsdaApiService
@@ -327,7 +329,9 @@ class FoodAnalysisPipeline(
                         client = UsdaHttpClientFactory.create(),
                     ),
                 ),
-                llmWorkflow = MultiProviderFoodLabelLlmWorkflow(
+                llmWorkflow = SelectingFoodLabelLlmWorkflow(
+                    proxyWorkflow = ProxyFoodLabelLlmWorkflow(),
+                    byokWorkflow = MultiProviderFoodLabelLlmWorkflow(
                     geminiWorkflow = GeminiFoodLabelLlmWorkflow(
                         context = appContext,
                         apiKeyProvider = SecretLlmApiKeyProvider(
@@ -358,6 +362,8 @@ class FoodAnalysisPipeline(
                         baseUrl = "https://api.groq.com/openai/v1",
                         providerTag = "groq",
                     ),
+                    ),
+                    apiKeyProvider = SecretLlmApiKeyProvider(SecretKeyManager(appContext)),
                 ),
             )
         }

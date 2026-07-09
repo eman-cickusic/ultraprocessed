@@ -236,7 +236,6 @@ fun UltraProcessedApp(
                     )
 
                     AppDestination.Scanner -> ScannerScreen(
-                        hasApiKey = hasLlmApiKey,
                         hasUsdaApiKey = hasUsdaApiKey,
                         enableLiveCamera = enableLiveCamera,
                         onScan = { path ->

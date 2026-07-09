@@ -26,6 +26,11 @@ val usdaBootstrapApiKeyB64 = localProperties
     .getProperty("ZEST_USDA_BOOTSTRAP_API_KEY_B64")
     .orEmpty()
     .trim()
+val proxyBaseUrl = localProperties
+    .getProperty("ZEST_PROXY_BASE_URL")
+    .orEmpty()
+    .trim()
+    .ifBlank { "https://ultraprocessed-ai-proxy-894254677159.us-east1.run.app" }
 val releaseStoreFile = providers.environmentVariable("ZEST_RELEASE_STORE_FILE").orNull
 val releaseStorePassword = providers.environmentVariable("ZEST_RELEASE_STORE_PASSWORD").orNull
 val releaseKeyAlias = providers.environmentVariable("ZEST_RELEASE_KEY_ALIAS").orNull
@@ -51,6 +56,11 @@ android {
             "String",
             "USDA_BOOTSTRAP_API_KEY_B64",
             usdaBootstrapApiKeyB64.asBuildConfigStringLiteral(),
+        )
+        buildConfigField(
+            "String",
+            "PROXY_BASE_URL",
+            proxyBaseUrl.asBuildConfigStringLiteral(),
         )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

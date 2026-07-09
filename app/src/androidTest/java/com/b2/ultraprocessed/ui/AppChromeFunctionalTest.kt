@@ -31,7 +31,6 @@ class AppChromeFunctionalTest {
         composeRule.setContent {
             UltraProcessedTheme {
                 ScannerScreen(
-                    hasApiKey = false,
                     hasUsdaApiKey = false,
                     enableLiveCamera = false,
                     onScan = {},

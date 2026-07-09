@@ -118,7 +118,6 @@ private object ScannerMetrics {
 
 @Composable
 fun ScannerScreen(
-    hasApiKey: Boolean,
     hasUsdaApiKey: Boolean,
     enableLiveCamera: Boolean = true,
     onScan: (String) -> Unit,
@@ -247,43 +246,9 @@ fun ScannerScreen(
             .background(DarkBg),
     ) {
         ScannerHomeHeader(
-            hasApiKey = hasApiKey,
             onHistory = onHistory,
             onSettings = onSettings,
         )
-
-        if (!hasApiKey) {
-            Surface(
-                onClick = onSettings,
-                color = Amber500.copy(alpha = 0.08f),
-                shape = RoundedCornerShape(14.dp),
-                border = androidx.compose.foundation.BorderStroke(
-                    1.dp,
-                    Amber500.copy(alpha = 0.30f),
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = ScannerMetrics.Space3, vertical = ScannerMetrics.Grid),
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = ScannerMetrics.Space2, vertical = ScannerMetrics.Grid),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(Amber400, CircleShape),
-                    )
-                    Spacer(modifier = Modifier.width(ScannerMetrics.Grid))
-                    Text(
-                        text = stringResource(R.string.scanner_missing_key_banner),
-                        color = Amber400,
-                        fontSize = ScannerMetrics.SecondaryText,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            }
-        }
 
         Column(
             modifier = Modifier
@@ -660,7 +625,6 @@ fun ScannerScreen(
 
 @Composable
 private fun ScannerHomeHeader(
-    hasApiKey: Boolean,
     onHistory: () -> Unit,
     onSettings: () -> Unit,
 ) {
@@ -717,7 +681,6 @@ private fun ScannerHomeHeader(
             icon = Icons.Default.Settings,
             contentDescription = "Settings",
             onClick = onSettings,
-            badgeVisible = !hasApiKey,
             testTag = AppTestTags.HEADER_ACTION_SETTINGS,
         )
     }
