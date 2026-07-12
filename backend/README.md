@@ -113,8 +113,8 @@ On model/auth/timeout failure the service returns HTTP 502 with
 | `GCP_LOCATION`    | `us-east1`         | Vertex AI region                         |
 | `GEMINI_MODEL`    | `gemini-2.5-flash` | Model id                                 |
 | `GEMINI_TIMEOUT_MS` | `30000`          | Per-request model timeout (ms)           |
-| `GEMINI_MAX_OUTPUT_TOKENS` | `700`     | Analysis output cap for the single structured call |
-| `GEMINI_CHAT_MAX_OUTPUT_TOKENS` | `512` | Result-chat output cap |
+| `GEMINI_MAX_OUTPUT_TOKENS` | `4096`    | Analysis output cap (shared by gemini-2.5-flash thinking + JSON answer) |
+| `GEMINI_CHAT_MAX_OUTPUT_TOKENS` | `2048` | Result-chat output cap (shared by thinking + answer) |
 | `ENABLE_OPENAPI_DOCS` | `false`        | Enables `/docs`, `/redoc`, and `/openapi.json` only for local/dev use |
 | `CORS_ALLOWED_ORIGINS` | empty         | Comma-separated browser origins allowed to call the API; empty disables CORS middleware |
 | `PORT`            | `8080`             | Server port (set by Cloud Run)           |

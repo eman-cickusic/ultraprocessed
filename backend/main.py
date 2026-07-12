@@ -33,8 +33,12 @@ GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID", "b2-ultra-processed")
 GCP_LOCATION = os.getenv("GCP_LOCATION", "us-east1")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 REQUEST_TIMEOUT_MS = int(os.getenv("GEMINI_TIMEOUT_MS", "30000"))
-FULL_ANALYSIS_MAX_OUTPUT_TOKENS = int(os.getenv("GEMINI_MAX_OUTPUT_TOKENS", "700"))
-CHAT_MAX_OUTPUT_TOKENS = int(os.getenv("GEMINI_CHAT_MAX_OUTPUT_TOKENS", "512"))
+# ponytail: gemini-2.5-flash "thinking" tokens share this output budget. 700/512 let thinking
+# eat the whole cap on complex labels, truncating the JSON to garbage -> 502 model_response_unparseable.
+# Raised to comfortably fit thinking + answer for real OCR inputs. If a pathological label still
+# truncates, bound thinking with types.ThinkingConfig(thinking_budget=N) on the generate_content calls.
+FULL_ANALYSIS_MAX_OUTPUT_TOKENS = int(os.getenv("GEMINI_MAX_OUTPUT_TOKENS", "4096"))
+CHAT_MAX_OUTPUT_TOKENS = int(os.getenv("GEMINI_CHAT_MAX_OUTPUT_TOKENS", "2048"))
 MAX_INGREDIENT_CHARS = 20_000
 MAX_CHAT_QUESTION_CHARS = 1_000
 MAX_CHAT_HISTORY_MESSAGES = 12
