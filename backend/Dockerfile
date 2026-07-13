@@ -9,7 +9,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py prompt.py ./
+COPY main.py prompt.py module_versions.json ./
 COPY prompts ./prompts
 
 EXPOSE 8080

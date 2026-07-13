@@ -94,8 +94,8 @@ enum class AppDestination {
 object AppCatalog {
     val modelOptions = listOf(
         ModelOption(
-            id = "gemini-2.5-flash",
-            name = "Gemini 2.5 Flash",
+            id = "gemini-3.5-flash",
+            name = "Gemini 3.5 Flash",
             provider = "Gemini (Google)",
             description = "Backend proxy analysis model for on-device OCR output",
             supportsImages = false,

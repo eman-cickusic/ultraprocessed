@@ -1,3 +1,4 @@
+import groovy.json.JsonSlurper
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -12,9 +13,9 @@ fun String.asBuildConfigStringLiteral(): String =
 
 val releaseVersionCode = providers.gradleProperty("ZEST_VERSION_CODE")
     .map(String::toInt)
-    .orElse(1)
+    .orElse(2)
 val releaseVersionName = providers.gradleProperty("ZEST_VERSION_NAME")
-    .orElse("1.0.0")
+    .orElse("1.0.1")
 val localProperties = Properties().apply {
     val localPropertiesFile = rootProject.layout.projectDirectory.file("local.properties").asFile
     if (localPropertiesFile.isFile) {
@@ -240,10 +241,123 @@ val verifySessionOnlyStorage = tasks.register("verifySessionOnlyStorage") {
     }
 }
 
+val verifyModuleVersionManifest = tasks.register("verifyModuleVersionManifest") {
+    group = "verification"
+    description = "Fails if a Zest module is missing from the production version manifest or docs."
+    doLast {
+        val manifestFile = rootProject.file("backend/module_versions.json")
+        val documentationFile = rootProject.file("documentation/12-module-versioning.md")
+        if (!manifestFile.isFile) {
+            throw GradleException("Missing module version manifest: ${manifestFile.relativeTo(rootDir)}")
+        }
+        if (!documentationFile.isFile) {
+            throw GradleException(
+                "Missing module version documentation: ${documentationFile.relativeTo(rootDir)}"
+            )
+        }
+
+        val manifest = JsonSlurper().parse(manifestFile) as Map<*, *>
+        val releaseVersion = manifest["releaseVersion"] as? String
+            ?: throw GradleException("module_versions.json must define releaseVersion.")
+        val versionPattern = Regex("""^\d+\.\d+\.\d+([+-][0-9A-Za-z.-]+)?$""")
+        if (!versionPattern.matches(releaseVersion)) {
+            throw GradleException("releaseVersion must be semantic versioning: $releaseVersion")
+        }
+
+        val modules = manifest["modules"] as? List<*>
+            ?: throw GradleException("module_versions.json must define modules[].")
+        val moduleMaps = modules.mapIndexed { index, item ->
+            item as? Map<*, *> ?: throw GradleException("modules[$index] must be a JSON object.")
+        }
+        val moduleIds = mutableSetOf<String>()
+        val docsText = documentationFile.readText()
+
+        fun moduleValue(module: Map<*, *>, key: String): String =
+            module[key] as? String
+                ?: throw GradleException("Every module must define string field '$key': $module")
+
+        moduleMaps.forEach { module ->
+            val id = moduleValue(module, "id")
+            val kind = moduleValue(module, "kind")
+            val path = moduleValue(module, "path")
+            val version = moduleValue(module, "version")
+
+            if (!moduleIds.add(id)) {
+                throw GradleException("Duplicate module version entry: $id")
+            }
+            if (!versionPattern.matches(version)) {
+                throw GradleException("Module $id has non-semver version: $version")
+            }
+            if (!docsText.contains("`$id`") || !docsText.contains("`$version`")) {
+                throw GradleException(
+                    "Module version documentation is missing module $id version $version."
+                )
+            }
+            if (kind != "android-gradle-module" && path.startsWith(":")) {
+                throw GradleException("Only android-gradle-module entries can use Gradle paths: $id")
+            }
+            if (!path.startsWith(":") && !rootProject.file(path).exists()) {
+                throw GradleException("Module $id points to missing path: $path")
+            }
+        }
+
+        val manifestGradlePaths = moduleMaps
+            .filter { moduleValue(it, "kind") == "android-gradle-module" }
+            .map { moduleValue(it, "path") }
+            .toSet()
+        val actualGradlePaths = rootProject.allprojects
+            .map { it.path }
+            .filter { it != ":" }
+            .toSet()
+        val missingGradleModules = actualGradlePaths - manifestGradlePaths
+        if (missingGradleModules.isNotEmpty()) {
+            throw GradleException(
+                "Gradle modules missing from backend/module_versions.json: " +
+                    missingGradleModules.joinToString()
+            )
+        }
+
+        val packageRoot = layout.projectDirectory
+            .dir("src/main/java/com/b2/ultraprocessed")
+            .asFile
+        val actualAndroidPackagePaths = packageRoot
+            .listFiles { file -> file.isDirectory }
+            .orEmpty()
+            .map { it.relativeTo(rootDir).invariantSeparatorsPath }
+            .toSet()
+        val manifestAndroidPackagePaths = moduleMaps
+            .filter { moduleValue(it, "kind") == "android-package" }
+            .map { moduleValue(it, "path") }
+            .toSet()
+        val missingAndroidPackages = actualAndroidPackagePaths - manifestAndroidPackagePaths
+        val staleAndroidPackages = manifestAndroidPackagePaths - actualAndroidPackagePaths
+        if (missingAndroidPackages.isNotEmpty() || staleAndroidPackages.isNotEmpty()) {
+            throw GradleException(
+                buildString {
+                    append("Android package module version manifest mismatch.")
+                    if (missingAndroidPackages.isNotEmpty()) {
+                        append("\nMissing package entries: ")
+                        append(missingAndroidPackages.joinToString())
+                    }
+                    if (staleAndroidPackages.isNotEmpty()) {
+                        append("\nStale package entries: ")
+                        append(staleAndroidPackages.joinToString())
+                    }
+                }
+            )
+        }
+    }
+}
+
 val verifySourceTreeForBuild = tasks.register("verifySourceTreeForBuild") {
     group = "verification"
     description = "Guards the Android source tree from retired files and macOS dataless placeholders."
-    dependsOn(verifyNoRetiredSourceFiles, verifyNoDatalessSources, verifySessionOnlyStorage)
+    dependsOn(
+        verifyNoRetiredSourceFiles,
+        verifyNoDatalessSources,
+        verifySessionOnlyStorage,
+        verifyModuleVersionManifest,
+    )
 }
 
 tasks.named("preBuild") {

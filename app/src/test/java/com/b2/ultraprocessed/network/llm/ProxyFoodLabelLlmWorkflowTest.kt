@@ -117,7 +117,7 @@ class ProxyFoodLabelLlmWorkflowTest {
             .build()
 
     companion object {
-        private const val MODEL = "gemini-2.5-flash"
+        private const val MODEL = "gemini-3.5-flash"
 
         private val SUCCESS_BODY = """
             {
@@ -142,7 +142,7 @@ class ProxyFoodLabelLlmWorkflowTest {
                 "confidence": 0.6,
                 "warnings": []
               },
-              "model": "gemini-2.5-flash",
+              "model": "gemini-3.5-flash",
               "usage": {"inputTokens": 12, "outputTokens": 34, "totalTokens": 46}
             }
         """.trimIndent()

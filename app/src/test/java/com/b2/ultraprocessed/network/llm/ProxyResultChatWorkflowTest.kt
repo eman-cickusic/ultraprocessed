@@ -41,7 +41,7 @@ class ProxyResultChatWorkflowTest {
         val reply = workflow.askAboutResult(
             result = chatContext,
             question = "What is concerning?",
-            modelId = "gemini-2.5-flash",
+            modelId = "gemini-3.5-flash",
             history = listOf(
                 ResultChatHistoryMessage(role = "user", text = "Why NOVA 4?"),
                 ResultChatHistoryMessage(role = "assistant", text = "Because additives were detected."),
@@ -84,7 +84,7 @@ class ProxyResultChatWorkflowTest {
         workflow.askAboutResult(
             result = chatContext,
             question = "What is concerning?",
-            modelId = "gemini-2.5-flash",
+            modelId = "gemini-3.5-flash",
         ).getOrThrow()
 
         assertFalse(hasAuthorization)
@@ -113,7 +113,7 @@ class ProxyResultChatWorkflowTest {
         val result = workflow.askAboutResult(
             result = chatContext,
             question = "What is concerning?",
-            modelId = "gemini-2.5-flash",
+            modelId = "gemini-3.5-flash",
         )
 
         assertTrue(result.isFailure)
@@ -145,7 +145,7 @@ class ProxyResultChatWorkflowTest {
         val result = workflow.askAboutResult(
             result = chatContext,
             question = "What is concerning?",
-            modelId = "gemini-2.5-flash",
+            modelId = "gemini-3.5-flash",
         )
 
         val message = result.exceptionOrNull()?.message.orEmpty()
@@ -187,7 +187,7 @@ class ProxyResultChatWorkflowTest {
                 "answer": "Soy lecithin is the main marker.",
                 "reason": ""
               },
-              "model": "gemini-2.5-flash",
+              "model": "gemini-3.5-flash",
               "usage": {"inputTokens": 1, "outputTokens": 2, "totalTokens": 3}
             }
         """.trimIndent()

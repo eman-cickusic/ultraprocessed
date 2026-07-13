@@ -305,7 +305,7 @@ class FoodAnalysisPipeline(
 
     companion object {
         const val MIN_NORMALIZED_LENGTH: Int = 12
-        const val DEFAULT_MODEL_ID: String = "gemini-2.5-flash"
+        const val DEFAULT_MODEL_ID: String = "gemini-3.5-flash"
         private const val PROXY_ANALYSIS_TIMEOUT_MILLIS = 110_000L
         private const val CLASSIFICATION_TIMEOUT_MILLIS = PROXY_ANALYSIS_TIMEOUT_MILLIS
         private const val INGREDIENT_LIST_TIMEOUT_MILLIS = PROXY_ANALYSIS_TIMEOUT_MILLIS

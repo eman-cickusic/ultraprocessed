@@ -58,7 +58,7 @@ integration is a direct deserialize:
     "confidence": 0.6,
     "warnings": []
   },
-  "model": "gemini-2.5-flash",
+  "model": "gemini-3.5-flash",
   "usage": { "inputTokens": 0, "outputTokens": 0, "totalTokens": 0 }
 }
 ```
@@ -98,7 +98,7 @@ Chat response:
     "answer": "Short scan-scoped answer.",
     "reason": ""
   },
-  "model": "gemini-2.5-flash",
+  "model": "gemini-3.5-flash",
   "usage": { "inputTokens": 0, "outputTokens": 0, "totalTokens": 0 }
 }
 ```
@@ -111,9 +111,9 @@ On model/auth/timeout failure the service returns HTTP 502 with
 |-------------------|--------------------|------------------------------------------|
 | `GCP_PROJECT_ID`  | `b2-ultra-processed` | GCP project for Vertex AI               |
 | `GCP_LOCATION`    | `us-east1`         | Vertex AI region                         |
-| `GEMINI_MODEL`    | `gemini-2.5-flash` | Model id                                 |
+| `GEMINI_MODEL`    | `gemini-3.5-flash` | Model id                                 |
 | `GEMINI_TIMEOUT_MS` | `30000`          | Per-request model timeout (ms)           |
-| `GEMINI_MAX_OUTPUT_TOKENS` | `4096`    | Analysis output cap (shared by gemini-2.5-flash thinking + JSON answer) |
+| `GEMINI_MAX_OUTPUT_TOKENS` | `4096`    | Analysis output cap (shared by thinking + JSON answer) |
 | `GEMINI_CHAT_MAX_OUTPUT_TOKENS` | `2048` | Result-chat output cap (shared by thinking + answer) |
 | `ENABLE_OPENAPI_DOCS` | `false`        | Enables `/docs`, `/redoc`, and `/openapi.json` only for local/dev use |
 | `CORS_ALLOWED_ORIGINS` | empty         | Comma-separated browser origins allowed to call the API; empty disables CORS middleware |
@@ -154,18 +154,25 @@ curl -X POST http://localhost:8080/chat \
   -d '{"question":"Which ingredient is the biggest concern?","result":{"productName":"Choco Wafer","novaGroup":4,"summary":"Contains additive markers.","sourceLabel":"OCR","confidence":0.85,"ingredients":["sugar","soy lecithin"],"ingredientAssessments":[{"name":"soy lecithin","verdict":"nova-4","reason":"Emulsifier marker."}],"allergens":["soy"],"warnings":[]},"history":[]}'
 ```
 
-### Latency benchmark
+### Latency and NOVA benchmark
 
 Unit tests prove contract and single-call behavior, not production p95. Use the benchmark against a
-deployed service before claiming the LLM-only path meets the p95 target:
+deployed service before claiming the LLM-only path meets the p95 target or expected NOVA behavior:
 
 ```bash
 python backend/benchmark_analyze.py \
   https://ultraprocessed-ai-proxy-894254677159.us-east1.run.app \
-  --iterations 5
+  --iterations 1 \
+  --details
 ```
 
-The script prints success rate, p50, p95, p99, and HTTP error counts for a fixed OCR corpus.
+The benchmark corpus contains 40 Open Food Facts products: 10 expected NOVA 1, 10 expected NOVA 2,
+10 expected NOVA 3, and 10 expected NOVA 4. Expected labels come from Open Food Facts `nova_group`
+values, and each corpus row includes the source product code and URL. The script prints success rate, NOVA accuracy,
+per-group accuracy, p50, p95, p99, token usage when returned by the backend, and HTTP/model error
+counts. Add `--strict-nova` to exit non-zero when any NOVA mismatch is observed.
+
+Corpus source: Open Food Facts public database and API.
 
 ## Deploy to Cloud Run
 
@@ -176,7 +183,7 @@ gcloud run deploy ultraprocessed-ai-proxy \
   --region us-east1 \
   --service-account up-app-service@b2-ultra-processed.iam.gserviceaccount.com \
   --allow-unauthenticated \
-  --set-env-vars GCP_PROJECT_ID=b2-ultra-processed,GCP_LOCATION=us-east1,GEMINI_MODEL=gemini-2.5-flash
+  --set-env-vars GCP_PROJECT_ID=b2-ultra-processed,GCP_LOCATION=us-east1,GEMINI_MODEL=gemini-3.5-flash
 ```
 
 The service account must have Vertex AI access (e.g. `roles/aiplatform.user`) on the project.
@@ -199,7 +206,7 @@ The service account must have Vertex AI access (e.g. `roles/aiplatform.user`) on
 
 ## Notes / caveats
 
-- **Region + model:** Vertex AI regional availability for `gemini-2.5-flash` varies. If a deploy
+- **Region + model:** Vertex AI regional availability for `gemini-3.5-flash` varies. If a deploy
   reports the model is unavailable in `us-east1`, set `GCP_LOCATION=global` (or `us-central1`)
   via `--set-env-vars` and redeploy.
 - **Backend-owned prompts:** Android sends scan data and chat questions only. The analysis and chat prompts live

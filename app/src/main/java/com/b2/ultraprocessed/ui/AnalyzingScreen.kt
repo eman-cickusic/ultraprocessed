@@ -121,11 +121,13 @@ fun AnalyzingScreen(
 
     LaunchedEffect(scanSessionId) {
         statusMessage = null
+        currentStep = 0
+        progress = 0f
         val startAt = System.currentTimeMillis()
         val outcome = runCatching {
             val onStage: (AnalysisStage) -> Unit = { stage ->
                 currentStep = stage.stepIndex()
-                progress = stage.progressPercent()
+                progress = maxOf(progress, stage.progressPercent())
             }
             val onStatus: (String) -> Unit = { message ->
                 statusMessage = message
@@ -171,6 +173,14 @@ fun AnalyzingScreen(
                 onFailure(forUi)
             },
         )
+    }
+
+    LaunchedEffect(scanSessionId, currentStep) {
+        val ceiling = currentStep.progressCeiling()
+        while (progress < ceiling) {
+            delay(450L)
+            progress = minOf(ceiling, progress + currentStep.progressIncrement())
+        }
     }
 
     val transition = rememberInfiniteTransition(label = "analysis-rings")
@@ -351,6 +361,22 @@ private fun AnalysisStage.progressPercent(): Float =
     when (this) {
         AnalysisStage.AnalysingImage -> 8f
         AnalysisStage.ExtractingIngredients -> 35f
-        AnalysisStage.AnalysingIngredients -> 72f
+        AnalysisStage.AnalysingIngredients -> 40f
         AnalysisStage.Completed -> 100f
+    }
+
+private fun Int.progressCeiling(): Float =
+    when (this) {
+        0 -> 34f
+        1 -> 39f
+        2 -> 96f
+        else -> 100f
+    }
+
+private fun Int.progressIncrement(): Float =
+    when (this) {
+        0 -> 3.5f
+        1 -> 1f
+        2 -> 0.45f
+        else -> 0f
     }

@@ -19,6 +19,8 @@ If you are not an Android developer, start with [00-android-app-guide.md](00-and
 - [09-todo-roadmap.md](09-todo-roadmap.md) - engineering and product backlog, including centralized navigation stack work for v2.
 - [10-responsible-ai-review.md](10-responsible-ai-review.md) - concise review of harmful gender, language, geographic, and socioeconomic behavior.
 - [11-maintenance-plan.md](11-maintenance-plan.md) - post-launch ownership, cadence, incident handling, patch policy, rollback, and support operations.
+- [12-module-versioning.md](12-module-versioning.md) - module version manifest, production tracking contract, and verification rules.
+- [performance_benchmark.md](performance_benchmark.md) - deployed backend response-time measurements, bottleneck analysis, and latency improvement plan.
 
 ## Current Product Contract
 

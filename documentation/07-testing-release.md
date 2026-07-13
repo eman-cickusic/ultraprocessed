@@ -23,6 +23,7 @@ Run this after most code changes:
 
 - retired demo, sample, or rule-based classifier files reappearing,
 - macOS dataless placeholders under `app/src` that can make Gradle or KSP appear stuck.
+- missing module version entries or stale module version documentation.
 
 ## Unit Tests
 
@@ -91,6 +92,7 @@ flowchart TB
 
 - Unit tests pass.
 - `verifySourceTreeForBuild` passes.
+- `backend/module_versions.json` contains every Gradle module, top-level Android package module, backend service, and backend prompt contract.
 - Release APK assembles with signing environment variables present.
 - Android test APK assembles.
 - `rg "BuildConfig|local.properties|USDA_API_KEY" app/src/main app/build.gradle.kts` shows no embedded key source.

@@ -14,6 +14,7 @@ import json
 import logging
 import os
 import re
+from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException
@@ -31,9 +32,9 @@ logger = logging.getLogger("ultraprocessed-ai-proxy")
 # --- Configuration (env vars with spec defaults) ---------------------------------
 GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID", "b2-ultra-processed")
 GCP_LOCATION = os.getenv("GCP_LOCATION", "us-east1")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
 REQUEST_TIMEOUT_MS = int(os.getenv("GEMINI_TIMEOUT_MS", "30000"))
-# ponytail: gemini-2.5-flash "thinking" tokens share this output budget. 700/512 let thinking
+# Gemini thinking tokens share this output budget. Low caps can let thinking
 # eat the whole cap on complex labels, truncating the JSON to garbage -> 502 model_response_unparseable.
 # Raised to comfortably fit thinking + answer for real OCR inputs. If a pathological label still
 # truncates, bound thinking with types.ThinkingConfig(thinking_budget=N) on the generate_content calls.
@@ -51,10 +52,23 @@ CORS_ALLOWED_ORIGINS = [
     for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
     if origin.strip()
 ]
+MODULE_VERSION_MANIFEST_PATH = Path(__file__).with_name("module_versions.json")
+
+
+def load_module_version_manifest() -> dict[str, Any]:
+    with MODULE_VERSION_MANIFEST_PATH.open(encoding="utf-8") as manifest_file:
+        manifest = json.load(manifest_file)
+    if not isinstance(manifest, dict):
+        raise RuntimeError("module version manifest must be a JSON object")
+    return manifest
+
+
+MODULE_VERSION_MANIFEST = load_module_version_manifest()
+SERVICE_VERSION = str(MODULE_VERSION_MANIFEST.get("releaseVersion", "0.0.0"))
 
 app = FastAPI(
     title="Ultraprocessed AI Proxy",
-    version="1.0.0",
+    version=SERVICE_VERSION,
     docs_url="/docs" if ENABLE_DOCS else None,
     redoc_url="/redoc" if ENABLE_DOCS else None,
     openapi_url="/openapi.json" if ENABLE_DOCS else None,
@@ -503,6 +517,11 @@ INJECTION_MARKERS = (
 @app.get("/healthz")
 def healthz() -> dict:
     return {"status": "ok"}
+
+
+@app.get("/version")
+def version() -> dict:
+    return MODULE_VERSION_MANIFEST
 
 
 @app.post("/analyze")

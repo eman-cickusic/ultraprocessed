@@ -1,0 +1,402 @@
+[
+  {
+    "id": "off-nova1-01-6111035002175",
+    "expected_nova_group": 1,
+    "product_name": "Sidi Ali",
+    "ingredient_text": "Sodium, Calcium, Magnésium, Potassium, Bicarbonates, Sulfates, Chlorures,",
+    "source": "Open Food Facts",
+    "source_code": "6111035002175",
+    "source_url": "https://world.openfoodfacts.org/product/6111035002175/sidi-ali",
+    "brands": "Sidi Ali"
+  },
+  {
+    "id": "off-nova1-02-5010477348630",
+    "expected_nova_group": 1,
+    "product_name": "Muesli 36% fruits noix & graines",
+    "ingredient_text": "Céréales complètes (64%) (flocons de blé, flocons d'avoine, pétales de blé grillé (13%)), raisins de sultane (16%), raisins secs (11%), copeaux de noix de coco (3,5%), noisettes grillées entières (3%), graines de tournesol (2,5%)",
+    "source": "Open Food Facts",
+    "source_code": "5010477348630",
+    "source_url": "https://world.openfoodfacts.org/product/5010477348630/muesli-36-fruits-noix-graines-jordan",
+    "brands": "Jordan"
+  },
+  {
+    "id": "off-nova1-03-20004132",
+    "expected_nova_group": 1,
+    "product_name": "Gehackte Tomaten in Tomatensaft",
+    "ingredient_text": "60% chopped tomatoes, 39,9% tomato juice, acidity regulator: citric acid",
+    "source": "Open Food Facts",
+    "source_code": "20004132",
+    "source_url": "https://world.openfoodfacts.org/product/20004132/gehackte-tomaten-in-tomatensaft-baresa",
+    "brands": "Baresa"
+  },
+  {
+    "id": "off-nova1-04-6111242101180",
+    "expected_nova_group": 1,
+    "product_name": "uht jaouda 1L",
+    "ingredient_text": "Lait entier",
+    "source": "Open Food Facts",
+    "source_code": "6111242101180",
+    "source_url": "https://world.openfoodfacts.org/product/6111242101180/uht-jaouda-1l",
+    "brands": "Jaouda"
+  },
+  {
+    "id": "off-nova1-05-5449000061515",
+    "expected_nova_group": 1,
+    "product_name": "Ciel",
+    "ingredient_text": "eau minérale, calcium, magnésium, sodium, potassium, bicarbonates, chlorures, sulfates, nitrates",
+    "source": "Open Food Facts",
+    "source_code": "5449000061515",
+    "source_url": "https://world.openfoodfacts.org/product/5449000061515/ciel-the-coca-cola-company",
+    "brands": "THE COCA-COLA COMPANY"
+  },
+  {
+    "id": "off-nova1-06-6111035001383",
+    "expected_nova_group": 1,
+    "product_name": "Eau minerale",
+    "ingredient_text": "Magnesium, Potassium, Bicarbonates, Sodium, Sulfates, Chlorides, Nitrates",
+    "source": "Open Food Facts",
+    "source_code": "6111035001383",
+    "source_url": "https://world.openfoodfacts.org/product/6111035001383/eau-minerale-sidi-ali",
+    "brands": "Sidi ali"
+  },
+  {
+    "id": "off-nova1-07-3760020507350",
+    "expected_nova_group": 1,
+    "product_name": "Pur beurre de cacahuète",
+    "ingredient_text": "CACAHUETES issues de l'agriculture biologique. Peut contenir des traces de FRUITS A COQUE et de graines de SESAME.",
+    "source": "Open Food Facts",
+    "source_code": "3760020507350",
+    "source_url": "https://world.openfoodfacts.org/product/3760020507350/pure-peanut-butter-jardin-bio-etic",
+    "brands": "Jardin Bio étic"
+  },
+  {
+    "id": "off-nova1-08-5010477348678",
+    "expected_nova_group": 1,
+    "product_name": "Special Muesli 30% fruits & noix",
+    "ingredient_text": "Céréales complètes (59%) (flocons d'_avoine_, flocons de _blé_, flocons de _blé_ grillés), fruits secs (30%) (raisins secs, raisins de sultanine, abricots secs hachés, tranches de pommes séchées, éclats de noix de coco grillés, noix_noisettes_ hachées grillées, _amandes_ effilées), flocons d'_orge_, graines de tournesol.",
+    "source": "Open Food Facts",
+    "source_code": "5010477348678",
+    "source_url": "https://world.openfoodfacts.org/product/5010477348678/special-muesli-jordans",
+    "brands": "Jordans"
+  },
+  {
+    "id": "off-nova1-09-20005733",
+    "expected_nova_group": 1,
+    "product_name": "Cerneaux de Noix",
+    "ingredient_text": "noix décortiquée Traces éventuelles d'autres fruits à coque et d'arachides.",
+    "source": "Open Food Facts",
+    "source_code": "20005733",
+    "source_url": "https://world.openfoodfacts.org/product/20005733/walnusse-alesto",
+    "brands": "Alesto"
+  },
+  {
+    "id": "off-nova1-10-20003166",
+    "expected_nova_group": 1,
+    "product_name": "FIOCCHI D'AVENA",
+    "ingredient_text": "100 % wholemeal oat flakes",
+    "source": "Open Food Facts",
+    "source_code": "20003166",
+    "source_url": "https://world.openfoodfacts.org/product/20003166/fiocchi-d-avena-crownfield",
+    "brands": "Crownfield"
+  },
+  {
+    "id": "off-nova2-01-3451790988677",
+    "expected_nova_group": 2,
+    "product_name": "Le Beurre Tendre",
+    "ingredient_text": "cream (origin france), milk fat , lactic ferments,",
+    "source": "Open Food Facts",
+    "source_code": "3451790988677",
+    "source_url": "https://world.openfoodfacts.org/product/3451790988677/le-beurre-tendre-elle-vire",
+    "brands": "Elle&Vire"
+  },
+  {
+    "id": "off-nova2-02-6191509900671",
+    "expected_nova_group": 2,
+    "product_name": "EXTRA VIRGIN OLIVE OIL",
+    "ingredient_text": "EXTRA VIRGIN OLIVE OIL",
+    "source": "Open Food Facts",
+    "source_code": "6191509900671",
+    "source_url": "https://world.openfoodfacts.org/product/6191509900671/extra-virgin-olive-oil-terra-delyssa",
+    "brands": "TERRA DELYSSA"
+  },
+  {
+    "id": "off-nova2-03-6111184001562",
+    "expected_nova_group": 2,
+    "product_name": "Sel de table iodé",
+    "ingredient_text": "Sel, iodate de potassium et anti-agglomérants",
+    "source": "Open Food Facts",
+    "source_code": "6111184001562",
+    "source_url": "https://world.openfoodfacts.org/product/6111184001562/sel-de-table-iode-star",
+    "brands": "Star"
+  },
+  {
+    "id": "off-nova2-04-4056489166856",
+    "expected_nova_group": 2,
+    "product_name": "Olivenöl",
+    "ingredient_text": "Natives Olivenöl extra",
+    "source": "Open Food Facts",
+    "source_code": "4056489166856",
+    "source_url": "https://world.openfoodfacts.org/product/4056489166856/natives-olivenol-primadonna",
+    "brands": "Primadonna"
+  },
+  {
+    "id": "off-nova2-05-6111180000392",
+    "expected_nova_group": 2,
+    "product_name": "سكر الفانيلين",
+    "ingredient_text": "sucre, amidon de maïs, éthylvanilline",
+    "source": "Open Food Facts",
+    "source_code": "6111180000392",
+    "source_url": "https://world.openfoodfacts.org/product/6111180000392/ideal-vanillin-sugar",
+    "brands": "Idéal"
+  },
+  {
+    "id": "off-nova2-06-5740900404465",
+    "expected_nova_group": 2,
+    "product_name": "Spreadable",
+    "ingredient_text": "butter (64%) (milk), rapeseed oil, water, lactic culture (milk), salt",
+    "source": "Open Food Facts",
+    "source_code": "5740900404465",
+    "source_url": "https://world.openfoodfacts.org/product/5740900404465/spreadable-lurpak",
+    "brands": "Lurpak"
+  },
+  {
+    "id": "off-nova2-07-6111024004746",
+    "expected_nova_group": 2,
+    "product_name": "Huile d'olive vierge de Maroc",
+    "ingredient_text": "Huile d'olive.",
+    "source": "Open Food Facts",
+    "source_code": "6111024004746",
+    "source_url": "https://world.openfoodfacts.org/product/6111024004746/huile-d-olive-vierge-de-maroc-alhorra",
+    "brands": "ALHORRA"
+  },
+  {
+    "id": "off-nova2-08-3165433724019",
+    "expected_nova_group": 2,
+    "product_name": "Cassonade pure canne",
+    "ingredient_text": "100% pure brown sugar",
+    "source": "Open Food Facts",
+    "source_code": "3165433724019",
+    "source_url": "https://world.openfoodfacts.org/product/3165433724019/cassonade-pure-canne-daddy",
+    "brands": "Daddy"
+  },
+  {
+    "id": "off-nova2-09-6191509900855",
+    "expected_nova_group": 2,
+    "product_name": "Organic Extra Virgin Olive Oil",
+    "ingredient_text": "extra virgin olive oil (organic of higher grade obtained directly from olives and only by mechanical processes),",
+    "source": "Open Food Facts",
+    "source_code": "6191509900855",
+    "source_url": "https://world.openfoodfacts.org/product/6191509900855/organic-extra-virgin-olive-oil-terra-delyssa",
+    "brands": "Terra Delyssa"
+  },
+  {
+    "id": "off-nova2-10-4056489424925",
+    "expected_nova_group": 2,
+    "product_name": "Smooth Peanut Butter",
+    "ingredient_text": "94% cacahuète, huile de palme, 1,2% huile d'arachides, sucre de canne, sel. Traces éventuelles de soja",
+    "source": "Open Food Facts",
+    "source_code": "4056489424925",
+    "source_url": "https://world.openfoodfacts.org/product/4056489424925/peanut-butter-creamy-maribel",
+    "brands": "Maribel"
+  },
+  {
+    "id": "off-nova3-01-8715700407760",
+    "expected_nova_group": 3,
+    "product_name": "Tomato Ketchup BIO",
+    "ingredient_text": "Tomates (180 g pour 100 g de Ketchup), sucre, vinaigre, sel, épices (contient céleri), poudre d'oignon, poudre d'ail,",
+    "source": "Open Food Facts",
+    "source_code": "8715700407760",
+    "source_url": "https://world.openfoodfacts.org/product/8715700407760/tomato-ketchup-bio-heinz",
+    "brands": "Heinz"
+  },
+  {
+    "id": "off-nova3-02-5025125000006",
+    "expected_nova_group": 3,
+    "product_name": "White Ciabattin",
+    "ingredient_text": "Wheat Flour (Wheat Flour, Calcium Carbonate, Folic Acid Iron, Niacin, Thiamin),Water, Salt, Fermented Wheat Flour.",
+    "source": "Open Food Facts",
+    "source_code": "5025125000006",
+    "source_url": "https://world.openfoodfacts.org/product/5025125000006/white-ciabattin-jason-s-sourdough",
+    "brands": "Jason's Sourdough"
+  },
+  {
+    "id": "off-nova3-03-6111242100992",
+    "expected_nova_group": 3,
+    "product_name": "Perly",
+    "ingredient_text": "milk cream, cream, sugar, banana, bacteria",
+    "source": "Open Food Facts",
+    "source_code": "6111242100992",
+    "source_url": "https://world.openfoodfacts.org/product/6111242100992/perly-jaouda",
+    "brands": "Jaouda"
+  },
+  {
+    "id": "off-nova3-04-6111246722039",
+    "expected_nova_group": 3,
+    "product_name": "fromage herbes milky food",
+    "ingredient_text": "Lait de vache pasteurisé, crème fraîche pasteurisée, ferments lactiques, présure, sel, ail et fines herbes.",
+    "source": "Open Food Facts",
+    "source_code": "6111246722039",
+    "source_url": "https://world.openfoodfacts.org/product/6111246722039/fromage-herbes-milky-food-milky-foof",
+    "brands": "milky foof"
+  },
+  {
+    "id": "off-nova3-05-6111242103702",
+    "expected_nova_group": 3,
+    "product_name": "Yaourt Grec Muesli",
+    "ingredient_text": "Lait frais, crème, poudre lait, sucre, amidon, préparation de céréales et de fruits secs (amandes, noix, miel, raisins secs, blé, avoine, seigle), ferments lactiques, arômes Matière grasse: 7%",
+    "source": "Open Food Facts",
+    "source_code": "6111242103702",
+    "source_url": "https://world.openfoodfacts.org/product/6111242103702/yaourt-grec-muesli-jaouda-110g",
+    "brands": "Jaouda"
+  },
+  {
+    "id": "off-nova3-06-6111266962187",
+    "expected_nova_group": 3,
+    "product_name": "Lait de la ferme jaouda",
+    "ingredient_text": "Lait frais pasteurisé demi écrémé à 15g/l de matière grasse",
+    "source": "Open Food Facts",
+    "source_code": "6111266962187",
+    "source_url": "https://world.openfoodfacts.org/product/6111266962187/lait-jaouda",
+    "brands": "Jaouda"
+  },
+  {
+    "id": "off-nova3-07-6111246721278",
+    "expected_nova_group": 3,
+    "product_name": "Cream cheese",
+    "ingredient_text": "Lait de Vache pasteurisé, Crème fraiche pasteurisée ferments lactiques, Présure,Sel.",
+    "source": "Open Food Facts",
+    "source_code": "6111246721278",
+    "source_url": "https://world.openfoodfacts.org/product/6111246721278/cream-cheese-original",
+    "brands": "Original"
+  },
+  {
+    "id": "off-nova3-08-6111242100206",
+    "expected_nova_group": 3,
+    "product_name": "Le nature",
+    "ingredient_text": "lait frais entier, poudre de lait écrémé, amidon, ferment lactique sélectionné",
+    "source": "Open Food Facts",
+    "source_code": "6111242100206",
+    "source_url": "https://world.openfoodfacts.org/product/6111242100206/le-nature-jaouda",
+    "brands": "Jaouda"
+  },
+  {
+    "id": "off-nova3-09-6111031005064",
+    "expected_nova_group": 3,
+    "product_name": "Tonik",
+    "ingredient_text": "Coffret fourré au cacao (41,6%) et à la vanille (208) - Ingrédients Farine de blé, sucre, huile végétale non hydrogénée (huile de palme), filtrat de lait, poudre de cacao Émulsifiant à faible teneur en cacao (322) Lécithine de soja) Agent levant (5000) Sucre artificiel (vanilline) Sel Contient du lait, du blé (gluten) du soja",
+    "source": "Open Food Facts",
+    "source_code": "6111031005064",
+    "source_url": "https://world.openfoodfacts.org/product/6111031005064/tonik",
+    "brands": "tonik"
+  },
+  {
+    "id": "off-nova3-10-6111162000716",
+    "expected_nova_group": 3,
+    "product_name": "Confiture d'abricot",
+    "ingredient_text": "Abricots, sucre, acide citrique",
+    "source": "Open Food Facts",
+    "source_code": "6111162000716",
+    "source_url": "https://world.openfoodfacts.org/product/6111162000716/confiture-d-abricot-delicia",
+    "brands": "Delicia"
+  },
+  {
+    "id": "off-nova4-01-3175680011480",
+    "expected_nova_group": 4,
+    "product_name": "Sésame",
+    "ingredient_text": "Farine de blé 57%, sucre de canne roux, huile de colza, sésame toasté 10,6%, germe de blé 5,4%, farine complète de blé 5,4%, arôme naturel, magnésium, émulsifiant : lécithines, poudres à lever (tartrates de potassium, carbonates de sodium, carbonates d'ammonium), sel de mer, amidon de blé, vitamines (E, PP, B6, B1, B9). Fabriqué dans un atelier qui utilise des fruits à coque, du lait, du lupin, de la moutarde, des oeufs et du soja",
+    "source": "Open Food Facts",
+    "source_code": "3175680011480",
+    "source_url": "https://world.openfoodfacts.org/product/3175680011480/sesame-gerble",
+    "brands": "Gerblé"
+  },
+  {
+    "id": "off-nova4-02-5449000000996",
+    "expected_nova_group": 4,
+    "product_name": "coca-cola",
+    "ingredient_text": "carbonated water, sugar, colour (caramel e150d), acid (phosphoric acid), natural flavourings, caffeine flavouring,",
+    "source": "Open Food Facts",
+    "source_code": "5449000000996",
+    "source_url": "https://world.openfoodfacts.org/product/5449000000996/coca-cola",
+    "brands": "Coca-Cola"
+  },
+  {
+    "id": "off-nova4-03-6111246721261",
+    "expected_nova_group": 4,
+    "product_name": "Fromage Blanc Nature",
+    "ingredient_text": "Lait de vache pasteurisé, Protéines de lait de vache, Crème de lait de vache, Ferment lactique, Amidon, Epaississant, Sorbate de potassium",
+    "source": "Open Food Facts",
+    "source_code": "6111246721261",
+    "source_url": "https://world.openfoodfacts.org/product/6111246721261/fromage-blanc-nature-milky-food-professional",
+    "brands": "Milky Food Professional"
+  },
+  {
+    "id": "off-nova4-04-6111242106949",
+    "expected_nova_group": 4,
+    "product_name": "Jben",
+    "ingredient_text": "lait frais entier, crème, stabilisants, amidon, carraghénane, sel, ferments lactiques matière grasse 21%",
+    "source": "Open Food Facts",
+    "source_code": "6111242106949",
+    "source_url": "https://world.openfoodfacts.org/product/6111242106949/jben-jaouda",
+    "brands": "Jaouda"
+  },
+  {
+    "id": "off-nova4-05-3017620425035",
+    "expected_nova_group": 4,
+    "product_name": "Nutella",
+    "ingredient_text": "Sucre, huile de palme, NOISETTES 13%, LAIT écrémé en poudre 8,7%, cacao maigre 7,4%, émulsifiants: lécithines [SOJA]; vanilline. Sans gluten",
+    "source": "Open Food Facts",
+    "source_code": "3017620425035",
+    "source_url": "https://world.openfoodfacts.org/product/3017620425035/pate-a-tartiner-aux-noisettes-et-au-cacao-nutella",
+    "brands": "Nutella"
+  },
+  {
+    "id": "off-nova4-06-3256540000698",
+    "expected_nova_group": 4,
+    "product_name": "Pains au lait",
+    "ingredient_text": "Farine de _blé_ 43%, Levain 21% (Farine de _blé_ 11%, Eau, Sel), Sucre, _Œufs_ frais 11%, _Beurre_ pâtissier, Huile de colza, Levure, _Lait_ écrémé en poudre (Équivalent à 10% de lait écrémé reconstitué), Émulsifiant: mono et diglycérides d'acides gras, Sel, Protéines de _blé_, _Gluten_ de blé, Extrait de carotte, Agent de traitement de la farine : acide ascorbique, Protéines de _lait_",
+    "source": "Open Food Facts",
+    "source_code": "3256540000698",
+    "source_url": "https://world.openfoodfacts.org/product/3256540000698/pains-au-lait-brioche-pasquier",
+    "brands": "Brioche Pasquier"
+  },
+  {
+    "id": "off-nova4-07-7622210601988",
+    "expected_nova_group": 4,
+    "product_name": "Granola L'Original",
+    "ingredient_text": "Farine de BLÉ 36%, chocolat au LAIT 27 % [sucre, pâte de cacao, beurre de cacao, lactosérum en poudre (de LAIT), LAIT écrémé en poudre, graisses végétales (karité, palme en proportion variable), BEURRE concentré, émulsifiants (lécithines de SOJA, E476), lactose (de LAIT), arôme], huile de palme, farine complète de BLE 12 %, sucre, sirop de sucre, poudres à lever (carbonates de sodium, carbonates d'ammonium), sel, correcteur d'acidité (acide citrique). Peut contenir : fruits à coque.",
+    "source": "Open Food Facts",
+    "source_code": "7622210601988",
+    "source_url": "https://world.openfoodfacts.org/product/7622210601988/granola-l-original-lu",
+    "brands": "LU"
+  },
+  {
+    "id": "off-nova4-08-7622210449283",
+    "expected_nova_group": 4,
+    "product_name": "Prince Goût Chocolat au blé complet",
+    "ingredient_text": "Céréale 50 % (Farine de blé 34,8 %, farine de blé complet 15,2 %), sucre, huiles végétales (palme, colza), cacao maigre en poudre 4,5 %, sirop de glucose, amidon de blé, poudres à lever (carbonates d'ammonium, carbonates de sodium), émulsifiant (lécithines de soja), sel, lait écrémé en poudre, perméat de lactosérum (de lait), arômes. Peut contenir œuf.",
+    "source": "Open Food Facts",
+    "source_code": "7622210449283",
+    "source_url": "https://world.openfoodfacts.org/product/7622210449283/prince-gout-chocolat-au-ble-complet-mondelez",
+    "brands": "Mondelez"
+  },
+  {
+    "id": "off-nova4-09-6111242100305",
+    "expected_nova_group": 4,
+    "product_name": "jaouda Cremy",
+    "ingredient_text": "Lait frais, sucre, poudre de lait écrémé, texturant : amidon, crème, arôme, ferments lactiques sélectionnés, matière grasse 3%",
+    "source": "Open Food Facts",
+    "source_code": "6111242100305",
+    "source_url": "https://world.openfoodfacts.org/product/6111242100305/cremy-jaouda",
+    "brands": "jaouda"
+  },
+  {
+    "id": "off-nova4-10-6111184004129",
+    "expected_nova_group": 4,
+    "product_name": "Mayonnaise recette originale",
+    "ingredient_text": "Huile de soja, eau, vinaigre de table, jaune d’œufs, moutarde&quot;, sel, stabilisants (E412, E415), conservateur : (E202, E211) et antioxydant : E330. * contient des sulfites",
+    "source": "Open Food Facts",
+    "source_code": "6111184004129",
+    "source_url": "https://world.openfoodfacts.org/product/6111184004129/mayonnaise-original-recipe-star",
+    "brands": "Star"
+  }
+]

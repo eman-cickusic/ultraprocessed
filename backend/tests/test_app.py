@@ -50,6 +50,23 @@ def test_healthz():
     assert r.json() == {"status": "ok"}
 
 
+def test_version_endpoint_returns_module_manifest():
+    r = client.get("/version")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["schemaVersion"] == 1
+    assert body["releaseVersion"] == main.SERVICE_VERSION
+    assert main.app.version == body["releaseVersion"]
+    modules = {module["id"]: module for module in body["modules"]}
+    assert modules["android-app"]["path"] == ":app"
+    assert modules["backend-proxy"]["path"] == "backend"
+    assert modules["backend-prompts"]["path"] == "backend/prompts"
+    serialized = json.dumps(body)
+    assert "ingredient_text" not in serialized
+    assert "rawIngredientText" not in serialized
+    assert "Zest Full Food Label Analysis Contract" not in serialized
+
+
 def test_openapi_docs_disabled_by_default():
     assert client.get("/docs").status_code == 404
     assert client.get("/openapi.json").status_code == 404
@@ -63,6 +80,14 @@ def test_full_analysis_prompt_is_backend_owned_and_sequential():
     assert "Cleaned ingredients" in prompt
     assert "Do not add \"Milk\" because \"may contain milk\" is advisory text" in prompt
     assert "exactly match one value in `correctedIngredients`" in prompt
+    assert "Do not reject mineral-water labels" in prompt
+    assert "Weak items that should NOT trigger NOVA 4 by themselves" in prompt
+    assert "Long list alone is not NOVA 4" in prompt
+    assert "NOVA Decision Ladder" in prompt
+    assert "NOVA 2 if product is mainly a culinary ingredient" in prompt
+    assert "NOVA 3 if recognizable foods are combined" in prompt
+    assert "include every strong marker found" in prompt
+    assert "do not cap or omit real markers" in prompt
 
     assert not (PROMPT_DIR / "food_label_classification_prompt.md").exists()
     assert not (PROMPT_DIR / "food_label_ingredient_analysis_prompt.md").exists()
@@ -262,7 +287,7 @@ def test_call_full_analysis_uses_structured_output_config(monkeypatch):
     assert "Zest Full Food Label Analysis Contract" in calls[0]["contents"]
     assert "wheat flour" in calls[0]["contents"]
     config = calls[0]["config"].model_dump(by_alias=True, exclude_none=True)
-    assert config["maxOutputTokens"] == 700
+    assert config["maxOutputTokens"] == main.FULL_ANALYSIS_MAX_OUTPUT_TOKENS
     assert config["responseMimeType"] == "application/json"
     assert config["responseSchema"] is main.FullAnalysisSchema
 

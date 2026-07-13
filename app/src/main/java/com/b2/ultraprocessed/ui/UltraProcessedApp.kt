@@ -94,6 +94,13 @@ fun UltraProcessedApp(
         destination = nextDestination
     }
 
+    fun clearCurrentResultAndImage() {
+        deleteLocalScanImage(appContext, currentScanResult?.labelImagePath)
+        currentScanResult = null
+        lastCapturedPhotoPath = null
+        barcodeValue = null
+    }
+
     fun navigateBackWithinApp() {
         when (destination) {
             AppDestination.Splash -> Unit
@@ -107,8 +114,16 @@ fun UltraProcessedApp(
                 }
             }
             AppDestination.Scanner -> Unit
-            AppDestination.Analyzing -> navigateTo(AppDestination.Scanner)
-            AppDestination.Results -> navigateTo(AppDestination.Scanner)
+            AppDestination.Analyzing -> {
+                deleteLocalScanImage(appContext, lastCapturedPhotoPath)
+                lastCapturedPhotoPath = null
+                barcodeValue = null
+                navigateTo(AppDestination.Scanner)
+            }
+            AppDestination.Results -> {
+                clearCurrentResultAndImage()
+                navigateTo(AppDestination.Scanner)
+            }
             AppDestination.AnalysisError -> {
                 analysisErrorMessage = ""
                 navigateTo(AppDestination.Scanner)
@@ -223,8 +238,7 @@ fun UltraProcessedApp(
                             ?: selectedModelId,
                         onSuccess = { result ->
                             barcodeValue = null
-                            deleteLocalScanImage(appContext, result.labelImagePath)
-                            currentScanResult = result.copy(labelImagePath = null)
+                            currentScanResult = result
                             lastCapturedPhotoPath = null
                             playSound(AppSoundEvent.Success)
                             navigateTo(AppDestination.Results)
@@ -245,6 +259,7 @@ fun UltraProcessedApp(
                             ResultsScreen(
                                 result = result,
                                 onScanAgain = {
+                                    clearCurrentResultAndImage()
                                     navigateTo(AppDestination.Scanner)
                                 },
                                 chatEnabled = true,
