@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "product": "Zest",
+  "releaseVersion": "1.0.1",
+  "modules": [
+    {
+      "id": "android-app",
+      "kind": "android-gradle-module",
+      "path": ":app",
+      "version": "1.0.1",
+      "runtimeSurface": "Android BuildConfig.VERSION_NAME"
+    },
+    {
+      "id": "backend-proxy",
+      "kind": "cloud-run-service",
+      "path": "backend",
+      "version": "1.0.1",
+      "runtimeSurface": "FastAPI app.version and GET /version"
+    },
+    {
+      "id": "analysis",
+      "kind": "android-package",
+      "path": "app/src/main/java/com/b2/ultraprocessed/analysis",
+      "version": "1.0.1",
+      "runtimeSurface": "module version manifest"
+    },
+    {
+      "id": "barcode",
+      "kind": "android-package",
+      "path": "app/src/main/java/com/b2/ultraprocessed/barcode",
+      "version": "1.0.0",
+      "runtimeSurface": "module version manifest"
+    },
+    {
+      "id": "camera",
+      "kind": "android-package",
+      "path": "app/src/main/java/com/b2/ultraprocessed/camera",
+      "version": "1.0.0",
+      "runtimeSurface": "module version manifest"
+    },
+    {
+      "id": "classify",
+      "kind": "android-package",
+      "path": "app/src/main/java/com/b2/ultraprocessed/classify",
+      "version": "1.0.0",
+      "runtimeSurface": "module version manifest"
+    },
+    {
+      "id": "ingredients",
+      "kind": "android-package",
+      "path": "app/src/main/java/com/b2/ultraprocessed/ingredients",
+      "version": "1.0.0",
+      "runtimeSurface": "module version manifest"
+    },
+    {
+      "id": "network",
+      "kind": "android-package",
+      "path": "app/src/main/java/com/b2/ultraprocessed/network",
+      "version": "1.0.0",
+      "runtimeSurface": "module version manifest"
+    },
+    {
+      "id": "ocr",
+      "kind": "android-package",
+      "path": "app/src/main/java/com/b2/ultraprocessed/ocr",
+      "version": "1.0.0",
+      "runtimeSurface": "module version manifest"
+    },
+    {
+      "id": "storage",
+      "kind": "android-package",
+      "path": "app/src/main/java/com/b2/ultraprocessed/storage",
+      "version": "1.0.0",
+      "runtimeSurface": "module version manifest"
+    },
+    {
+      "id": "ui",
+      "kind": "android-package",
+      "path": "app/src/main/java/com/b2/ultraprocessed/ui",
+      "version": "1.0.1",
+      "runtimeSurface": "module version manifest"
+    },
+    {
+      "id": "backend-prompts",
+      "kind": "backend-contract-assets",
+      "path": "backend/prompts",
+      "version": "1.0.3",
+      "runtimeSurface": "backend-owned prompt files"
+    }
+  ]
+}
