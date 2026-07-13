@@ -1,0 +1,51 @@
+---
+description: Zest repository agent context and guardrails
+alwaysApply: true
+---
+
+# Zest Agent Context
+
+Read these first:
+
+- `documentation/13-agent-brief.md`
+- `documentation/14-decision-log.md`
+- The subsystem doc linked from the agent brief for the files you are changing.
+
+Hard rules:
+
+- No runtime rule-based NOVA fallback.
+- No AI image upload; OCR stays on device and backend receives text only.
+- No user AI API keys; Gemini calls go through the backend proxy.
+- No persistence or logging of scan images, OCR text, ingredients, results, chat, usage, failures, prompts, requests, or responses.
+- Keep `/analyze` and `/chat` separate with separate backend-owned prompts.
+- Android must not send prompt text, schemas, or model instructions.
+- Keep allergens separate from ultra-processing markers.
+- Keep module versions in root `module_versions.json`, root `VERSION_LOG.md`, and `documentation/12-module-versioning.md`.
+
+Change governance:
+
+- For every change, summarize what changed in the relevant documentation.
+- Extract durable philosophy/architecture decisions and update `documentation/14-decision-log.md`.
+- Update `documentation/13-agent-brief.md` when future agents need different guidance.
+- Update root `module_versions.json` and root `VERSION_LOG.md` when behavior, contracts, prompts, build/release rules, documentation modules, or agent guidance changes.
+- If no version bump is needed, explain why in the final response.
+
+Current defaults:
+
+- Android: Kotlin + Jetpack Compose.
+- Backend: FastAPI on Cloud Run, Vertex AI service-account auth.
+- Model: `gemini-3.5-flash`.
+- Storage: session-only scan data; former Room/history code is archived under `documentation/code-archive/session_only_storage/`.
+
+Verification:
+
+```bash
+./gradlew :app:verifySourceTreeForBuild :app:compileDebugKotlin
+./gradlew :app:testDebugUnitTest
+.venv/bin/python -m pytest backend/tests/test_app.py backend/tests/test_benchmark_analyze.py -q
+git diff --check
+```
+
+Known caution:
+
+Public Cloud Run `/analyze` and `/chat` access is acceptable only for testing or limited rollout. Broad production needs abuse controls.

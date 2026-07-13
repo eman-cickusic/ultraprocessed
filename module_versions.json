@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "product": "Zest",
-  "releaseVersion": "1.0.1",
+  "releaseVersion": "1.0.2",
   "modules": [
     {
       "id": "android-app",
       "kind": "android-gradle-module",
       "path": ":app",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "runtimeSurface": "Android BuildConfig.VERSION_NAME"
     },
     {
       "id": "backend-proxy",
       "kind": "cloud-run-service",
       "path": "backend",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "runtimeSurface": "FastAPI app.version and GET /version"
     },
     {
@@ -86,6 +86,20 @@
       "path": "backend/prompts",
       "version": "1.0.3",
       "runtimeSurface": "backend-owned prompt files"
+    },
+    {
+      "id": "documentation",
+      "kind": "repo-documentation",
+      "path": "documentation",
+      "version": "1.0.0",
+      "runtimeSurface": "repo documentation and handoff docs"
+    },
+    {
+      "id": "agent-context",
+      "kind": "repo-agent-guidance",
+      "path": "AGENTS.md",
+      "version": "1.0.0",
+      "runtimeSurface": "AGENTS.md and .cursor/rules/zest-project.mdc"
     }
   ]
 }

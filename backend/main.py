@@ -52,11 +52,17 @@ CORS_ALLOWED_ORIGINS = [
     for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
     if origin.strip()
 ]
-MODULE_VERSION_MANIFEST_PATH = Path(__file__).with_name("module_versions.json")
+MODULE_VERSION_MANIFEST_PATHS = (
+    Path(__file__).resolve().parent.parent / "module_versions.json",
+    Path(__file__).with_name("module_versions.json"),
+)
 
 
 def load_module_version_manifest() -> dict[str, Any]:
-    with MODULE_VERSION_MANIFEST_PATH.open(encoding="utf-8") as manifest_file:
+    manifest_path = next((path for path in MODULE_VERSION_MANIFEST_PATHS if path.is_file()), None)
+    if manifest_path is None:
+        raise RuntimeError("module version manifest not found")
+    with manifest_path.open(encoding="utf-8") as manifest_file:
         manifest = json.load(manifest_file)
     if not isinstance(manifest, dict):
         raise RuntimeError("module version manifest must be a JSON object")

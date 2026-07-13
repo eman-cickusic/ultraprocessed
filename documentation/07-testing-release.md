@@ -92,7 +92,8 @@ flowchart TB
 
 - Unit tests pass.
 - `verifySourceTreeForBuild` passes.
-- `backend/module_versions.json` contains every Gradle module, top-level Android package module, backend service, and backend prompt contract.
+- Root `module_versions.json` contains every Gradle module, top-level Android package module, backend service, backend prompt contract, documentation module, and agent-context module.
+- Root `VERSION_LOG.md` contains the current release entry and the module versions changed by the release.
 - Release APK assembles with signing environment variables present.
 - Android test APK assembles.
 - `rg "BuildConfig|local.properties|USDA_API_KEY" app/src/main app/build.gradle.kts` shows no embedded key source.

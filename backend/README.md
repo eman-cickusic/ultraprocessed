@@ -178,7 +178,7 @@ Corpus source: Open Food Facts public database and API.
 
 ```bash
 gcloud run deploy ultraprocessed-ai-proxy \
-  --source backend \
+  --source . \
   --project b2-ultra-processed \
   --region us-east1 \
   --service-account up-app-service@b2-ultra-processed.iam.gserviceaccount.com \
@@ -187,6 +187,8 @@ gcloud run deploy ultraprocessed-ai-proxy \
 ```
 
 The service account must have Vertex AI access (e.g. `roles/aiplatform.user`) on the project.
+
+Deploy from the repository root so the root `Dockerfile` and root `module_versions.json` are packaged into the backend image for `GET /version`. If using `backend/Dockerfile` directly, build with the repository root as the Docker context: `docker build -f backend/Dockerfile .`.
 
 ## Security notes
 

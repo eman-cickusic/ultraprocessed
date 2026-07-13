@@ -1,5 +1,4 @@
-# Backend Cloud Run image. Build with repository root as the Docker context:
-# docker build -f backend/Dockerfile .
+# Backend Cloud Run image. Build from the repository root so module_versions.json is packaged.
 FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1 \

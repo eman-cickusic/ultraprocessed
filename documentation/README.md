@@ -4,6 +4,8 @@ This folder is the handoff surface for Zest. Each document explains one producti
 
 If you are not an Android developer, start with [00-android-app-guide.md](00-android-app-guide.md). It explains the project with diagrams, file maps, and plain-language Android concepts.
 
+Repo-level agent and version entrypoints live at [../AGENTS.md](../AGENTS.md), [../module_versions.json](../module_versions.json), and [../VERSION_LOG.md](../VERSION_LOG.md).
+
 ## Document Map
 
 - [00-product-requirements.md](00-product-requirements.md) - product problem, scope, scan-session definition, requirements, and acceptance criteria.
@@ -19,7 +21,9 @@ If you are not an Android developer, start with [00-android-app-guide.md](00-and
 - [09-todo-roadmap.md](09-todo-roadmap.md) - engineering and product backlog, including centralized navigation stack work for v2.
 - [10-responsible-ai-review.md](10-responsible-ai-review.md) - concise review of harmful gender, language, geographic, and socioeconomic behavior.
 - [11-maintenance-plan.md](11-maintenance-plan.md) - post-launch ownership, cadence, incident handling, patch policy, rollback, and support operations.
-- [12-module-versioning.md](12-module-versioning.md) - module version manifest, production tracking contract, and verification rules.
+- [12-module-versioning.md](12-module-versioning.md) - root module version manifest, root version log, production tracking contract, and verification rules.
+- [13-agent-brief.md](13-agent-brief.md) - short first-read handoff for agents and new contributors.
+- [14-decision-log.md](14-decision-log.md) - summarized architecture and product decisions that future agents must preserve.
 - [performance_benchmark.md](performance_benchmark.md) - deployed backend response-time measurements, bottleneck analysis, and latency improvement plan.
 
 ## Current Product Contract
@@ -110,15 +114,17 @@ flowchart TB
 
 ## Reading Order For A New Engineer
 
-1. Read [00-product-requirements.md](00-product-requirements.md).
-2. Read [00-android-app-guide.md](00-android-app-guide.md).
-3. Read [01-architecture.md](01-architecture.md).
-4. Read [02-ui-navigation.md](02-ui-navigation.md).
-5. Read [04-classification-analysis.md](04-classification-analysis.md).
-6. Read [06-storage-security.md](06-storage-security.md).
-7. Read [07-testing-release.md](07-testing-release.md).
-8. Read [09-todo-roadmap.md](09-todo-roadmap.md) before planning v2 work.
-9. Read [11-maintenance-plan.md](11-maintenance-plan.md) when preparing a release or handling an operational issue.
+1. Read [13-agent-brief.md](13-agent-brief.md).
+2. Read [14-decision-log.md](14-decision-log.md).
+3. Read [00-product-requirements.md](00-product-requirements.md).
+4. Read [00-android-app-guide.md](00-android-app-guide.md).
+5. Read [01-architecture.md](01-architecture.md).
+6. Read [02-ui-navigation.md](02-ui-navigation.md).
+7. Read [04-classification-analysis.md](04-classification-analysis.md).
+8. Read [06-storage-security.md](06-storage-security.md).
+9. Read [07-testing-release.md](07-testing-release.md).
+10. Read [09-todo-roadmap.md](09-todo-roadmap.md) before planning v2 work.
+11. Read [11-maintenance-plan.md](11-maintenance-plan.md) when preparing a release or handling an operational issue.
 
 ## What To Avoid
 

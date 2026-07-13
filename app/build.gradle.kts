@@ -13,9 +13,9 @@ fun String.asBuildConfigStringLiteral(): String =
 
 val releaseVersionCode = providers.gradleProperty("ZEST_VERSION_CODE")
     .map(String::toInt)
-    .orElse(2)
+    .orElse(3)
 val releaseVersionName = providers.gradleProperty("ZEST_VERSION_NAME")
-    .orElse("1.0.1")
+    .orElse("1.0.2")
 val localProperties = Properties().apply {
     val localPropertiesFile = rootProject.layout.projectDirectory.file("local.properties").asFile
     if (localPropertiesFile.isFile) {
@@ -245,10 +245,14 @@ val verifyModuleVersionManifest = tasks.register("verifyModuleVersionManifest") 
     group = "verification"
     description = "Fails if a Zest module is missing from the production version manifest or docs."
     doLast {
-        val manifestFile = rootProject.file("backend/module_versions.json")
+        val manifestFile = rootProject.file("module_versions.json")
+        val versionLogFile = rootProject.file("VERSION_LOG.md")
         val documentationFile = rootProject.file("documentation/12-module-versioning.md")
         if (!manifestFile.isFile) {
             throw GradleException("Missing module version manifest: ${manifestFile.relativeTo(rootDir)}")
+        }
+        if (!versionLogFile.isFile) {
+            throw GradleException("Missing repo version log: ${versionLogFile.relativeTo(rootDir)}")
         }
         if (!documentationFile.isFile) {
             throw GradleException(
@@ -271,6 +275,10 @@ val verifyModuleVersionManifest = tasks.register("verifyModuleVersionManifest") 
         }
         val moduleIds = mutableSetOf<String>()
         val docsText = documentationFile.readText()
+        val versionLogText = versionLogFile.readText()
+        if (!versionLogText.contains("## $releaseVersion")) {
+            throw GradleException("VERSION_LOG.md is missing release entry: $releaseVersion")
+        }
 
         fun moduleValue(module: Map<*, *>, key: String): String =
             module[key] as? String
@@ -293,6 +301,9 @@ val verifyModuleVersionManifest = tasks.register("verifyModuleVersionManifest") 
                     "Module version documentation is missing module $id version $version."
                 )
             }
+            if (!versionLogText.contains(version)) {
+                throw GradleException("VERSION_LOG.md is missing module version $version for $id.")
+            }
             if (kind != "android-gradle-module" && path.startsWith(":")) {
                 throw GradleException("Only android-gradle-module entries can use Gradle paths: $id")
             }
@@ -312,7 +323,7 @@ val verifyModuleVersionManifest = tasks.register("verifyModuleVersionManifest") 
         val missingGradleModules = actualGradlePaths - manifestGradlePaths
         if (missingGradleModules.isNotEmpty()) {
             throw GradleException(
-                "Gradle modules missing from backend/module_versions.json: " +
+                "Gradle modules missing from module_versions.json: " +
                     missingGradleModules.joinToString()
             )
         }
