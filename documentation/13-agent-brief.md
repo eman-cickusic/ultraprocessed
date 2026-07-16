@@ -26,7 +26,7 @@ Runtime flow:
 - Privacy: do not persist or log scan images, OCR text, ingredients, results, chat, usage, or failures.
 - Storage archive: former Room/history code stays under `documentation/code-archive/session_only_storage/` and must not be restored without a product privacy decision.
 - UI: allergens are separate from processing markers; ingredient bubbles are based on corrected ingredient names and ultra-processed marker matches.
-- Production risk: public unauthenticated backend endpoints are a known deferred risk and require abuse controls before broad launch.
+- Production risk: public unauthenticated backend endpoints are a known deferred risk. The backend App Check (Play Integrity) verifier is landed but gated off and `--max-instances` is capped; finish enforcement (Firebase/Play setup, Android token header, then `APP_CHECK_ENABLED=true`) before broad launch. See `documentation/15-backend-abuse-controls.md`.
 
 ## Where To Look
 

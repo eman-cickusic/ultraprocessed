@@ -4,6 +4,15 @@ This is the repo-level change log for Zest module and release versions. Every co
 
 Entries can represent coordinated product releases or independently versioned modules.
 
+## 1.0.4
+
+Date: 2026-07-16
+
+- Added backend abuse controls for the public Cloud Run proxy: a Firebase App Check (Play Integrity) token verifier (`backend/app_check.py`), enforced on `/analyze` and `/chat`, gated off by default (`APP_CHECK_ENABLED=false`) so it is a no-op until the app sends tokens.
+- Capped Cloud Run `--max-instances` 100 -> 10 to bound the Vertex cost/quota blast radius.
+- Added `documentation/15-backend-abuse-controls.md` with exposure, mitigations, and the ordered enforcement rollout.
+- No Android module change; enforcement stays off until a token-sending app build has adoption.
+
 ## 1.0.3
 
 Date: 2026-07-13

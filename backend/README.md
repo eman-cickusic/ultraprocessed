@@ -117,6 +117,9 @@ On model/auth/timeout failure the service returns HTTP 502 with
 | `GEMINI_CHAT_MAX_OUTPUT_TOKENS` | `2048` | Result-chat output cap (shared by thinking + answer) |
 | `ENABLE_OPENAPI_DOCS` | `false`        | Enables `/docs`, `/redoc`, and `/openapi.json` only for local/dev use |
 | `CORS_ALLOWED_ORIGINS` | empty         | Comma-separated browser origins allowed to call the API; empty disables CORS middleware |
+| `APP_CHECK_ENABLED` | `false`          | When `true`, `/analyze` and `/chat` require a valid Firebase App Check token (`X-Firebase-AppCheck` header). Off = no attestation check (current shipped-app posture). |
+| `FIREBASE_PROJECT_NUMBER` | empty      | Required when `APP_CHECK_ENABLED=true`; the project number (`894254677159`) used to validate the token audience/issuer. |
+| `APP_CHECK_JWKS_URL` | Firebase JWKS   | Override the App Check public-key endpoint (testing only). |
 | `PORT`            | `8080`             | Server port (set by Cloud Run)           |
 
 ## Local development
@@ -192,10 +195,16 @@ Deploy from the repository root so the root `Dockerfile` and root `module_versio
 
 ## Security notes
 
-- **Known deferred risk:** `--allow-unauthenticated` leaves `/analyze` and `/chat` publicly callable. This is
-  accepted only as a temporary testing or limited-rollout posture. Before broad production launch,
-  add real abuse controls such as Firebase App Check / Play Integrity, Firebase Auth, API Gateway
-  + IAM, Cloud Armor, per-device quotas, or another approved mechanism.
+- **Public access is still `--allow-unauthenticated`.** `/analyze` and `/chat` remain publicly callable at
+  the Cloud Run IAM layer (removing this now would break the shipped app, which sends no credential).
+  Two mitigations are in place, and the plan to close the gap is tracked in
+  `documentation/15-backend-abuse-controls.md`:
+  - **Blast radius capped:** Cloud Run `--max-instances=10` bounds how many paid Vertex calls a flood can
+    trigger. This limits cost/quota damage; it does not authenticate callers.
+  - **App Check verifier present but gated OFF** (`APP_CHECK_ENABLED=false`). `app_check.py` verifies a
+    Firebase App Check (Play Integrity) token when enabled. It stays a no-op until the Android app ships
+    tokens and the flag is flipped — see the rollout order in the doc above. This is the app-layer
+    attestation control; it works alongside `--allow-unauthenticated` at the IAM layer.
 - **No static mobile secret:** do not protect these endpoints with a secret compiled into the Android
   app; it can be extracted and replayed.
 - **Docs are disabled by default.** Set `ENABLE_OPENAPI_DOCS=true` only for local development or

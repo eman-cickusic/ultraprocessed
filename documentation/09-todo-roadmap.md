@@ -25,7 +25,7 @@ Zest currently uses:
 - Create typed screen arguments for result, disclaimer, and analysis flows.
 - Move analysis launch side effects out of screen composition where practical.
 - Design privacy-safe operational diagnostics that never include OCR text, images, prompts, or model responses.
-- Add production abuse controls for public backend `/analyze` and `/chat` endpoints before broad launch; App Check / Play Integrity is a candidate, but not part of the current implementation.
+- Finish production abuse controls for public backend `/analyze` and `/chat` before broad launch. In progress (see [15-backend-abuse-controls.md](15-backend-abuse-controls.md)): max-instances capped, and a Firebase App Check / Play Integrity verifier is landed in the backend but gated off. Remaining: Firebase/Play setup, the Android token header, then flip `APP_CHECK_ENABLED`.
 - Add provider usage parsing when provider responses include reliable token/cost metadata.
 - Add migration tests only if a future approved feature restores local persistence.
 - Add UI snapshot or screenshot tests for scanner, settings, results, and error states.

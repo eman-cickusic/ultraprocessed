@@ -24,6 +24,7 @@ Repo-level agent and version entrypoints live at [../AGENTS.md](../AGENTS.md), [
 - [12-module-versioning.md](12-module-versioning.md) - root module version manifest, root version log, production tracking contract, and verification rules.
 - [13-agent-brief.md](13-agent-brief.md) - short first-read handoff for agents and new contributors.
 - [14-decision-log.md](14-decision-log.md) - summarized architecture and product decisions that future agents must preserve.
+- [15-backend-abuse-controls.md](15-backend-abuse-controls.md) - public proxy exposure, mitigations in place, and the ordered plan to enforce Firebase App Check / Play Integrity before broad rollout.
 - [performance_benchmark.md](performance_benchmark.md) - deployed backend response-time measurements, bottleneck analysis, and latency improvement plan.
 
 ## Current Product Contract

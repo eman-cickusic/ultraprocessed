@@ -11,7 +11,7 @@ WORKDIR /app
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY backend/main.py backend/prompt.py module_versions.json ./
+COPY backend/main.py backend/prompt.py backend/app_check.py module_versions.json ./
 COPY backend/prompts ./prompts
 
 EXPOSE 8080
