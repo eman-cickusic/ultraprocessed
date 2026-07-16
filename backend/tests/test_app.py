@@ -262,7 +262,7 @@ def test_call_full_analysis_uses_structured_output_config(monkeypatch):
     assert "Zest Full Food Label Analysis Contract" in calls[0]["contents"]
     assert "wheat flour" in calls[0]["contents"]
     config = calls[0]["config"].model_dump(by_alias=True, exclude_none=True)
-    assert config["maxOutputTokens"] == 700
+    assert config["maxOutputTokens"] == main.FULL_ANALYSIS_MAX_OUTPUT_TOKENS
     assert config["responseMimeType"] == "application/json"
     assert config["responseSchema"] is main.FullAnalysisSchema
 

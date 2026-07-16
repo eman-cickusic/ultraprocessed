@@ -5,3 +5,5 @@ pydantic>=2.9,<3.0
 # Keep local and Cloud Run installs on a wheel-backed version; newer releases may require a
 # Rust/Cargo version unavailable in some build environments.
 cryptography==44.0.3
+# App Check (Play Integrity) token verification; uses the pinned cryptography above for RS256.
+pyjwt[crypto]>=2.8,<3.0

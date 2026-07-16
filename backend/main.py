@@ -16,10 +16,11 @@ import os
 import re
 from typing import Any, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field
 
+from app_check import require_app_check
 from prompt import (
     build_chat_prompt,
     build_full_analysis_prompt,
@@ -505,7 +506,7 @@ def healthz() -> dict:
     return {"status": "ok"}
 
 
-@app.post("/analyze")
+@app.post("/analyze", dependencies=[Depends(require_app_check)])
 def analyze(req: AnalyzeRequest) -> dict:
     try:
         operation = (req.type or "").strip().lower()
@@ -542,7 +543,7 @@ def analyze(req: AnalyzeRequest) -> dict:
         )
 
 
-@app.post("/chat")
+@app.post("/chat", dependencies=[Depends(require_app_check)])
 def chat(req: ChatRequest) -> dict:
     try:
         return analyze_chat(req)
