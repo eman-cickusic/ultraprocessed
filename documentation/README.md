@@ -19,6 +19,7 @@ If you are not an Android developer, start with [00-android-app-guide.md](00-and
 - [09-todo-roadmap.md](09-todo-roadmap.md) - engineering and product backlog, including centralized navigation stack work for v2.
 - [10-responsible-ai-review.md](10-responsible-ai-review.md) - concise review of harmful gender, language, geographic, and socioeconomic behavior.
 - [11-maintenance-plan.md](11-maintenance-plan.md) - post-launch ownership, cadence, incident handling, patch policy, rollback, and support operations.
+- [12-backend-abuse-controls.md](12-backend-abuse-controls.md) - public proxy exposure, mitigations in place, and the ordered plan to enforce Firebase App Check / Play Integrity before broad rollout.
 
 ## Current Product Contract
 
