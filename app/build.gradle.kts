@@ -8,6 +8,12 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+// App Check (Play Integrity) needs the Google Services plugin, which requires google-services.json.
+// Apply it only when that file is present so the build still works before Firebase is configured.
+if (project.file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 fun String.asBuildConfigStringLiteral(): String =
     "\"" + replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
@@ -408,6 +414,11 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.json:json:20240303")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
+
+    // Firebase App Check (Play Integrity) — attests requests come from the genuine app.
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-appcheck")
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")

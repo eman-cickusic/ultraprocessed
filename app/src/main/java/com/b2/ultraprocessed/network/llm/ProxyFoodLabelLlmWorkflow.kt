@@ -127,11 +127,14 @@ class ProxyFoodLabelLlmWorkflow(
         }
         val url = "${baseUrl.trimEnd('/')}/analyze"
         AnalysisTelemetry.event("proxy_request_start url=$url")
-        val request = Request.Builder()
+        val requestBuilder = Request.Builder()
             .url(url)
             .header("Content-Type", "application/json")
             .post(payload.toString().toRequestBody(JSON_MEDIA_TYPE))
-            .build()
+        AppCheckTokenProvider.currentToken()?.let {
+            requestBuilder.header(AppCheckTokenProvider.X_FIREBASE_APPCHECK_HEADER, it)
+        }
+        val request = requestBuilder.build()
 
         val body = suspendCancellableCoroutine { continuation ->
             val call = client.newCall(request)

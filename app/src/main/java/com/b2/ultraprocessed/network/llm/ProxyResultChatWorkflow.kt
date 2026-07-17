@@ -33,11 +33,14 @@ class ProxyResultChatWorkflow(
                 .put("history", JSONArray(trimHistory(history).map { it.toJson() }))
             val url = "${baseUrl.trimEnd('/')}/chat"
             AnalysisTelemetry.event("proxy_chat_request_start url=$url")
-            val request = Request.Builder()
+            val requestBuilder = Request.Builder()
                 .url(url)
                 .header("Content-Type", "application/json")
                 .post(payload.toString().toRequestBody(JSON_MEDIA_TYPE))
-                .build()
+            AppCheckTokenProvider.currentToken()?.let {
+                requestBuilder.header(AppCheckTokenProvider.X_FIREBASE_APPCHECK_HEADER, it)
+            }
+            val request = requestBuilder.build()
             client.newCall(request).execute().use { response ->
                 val raw = response.body?.string().orEmpty()
                 AnalysisTelemetry.event("proxy_chat_response http=${response.code}")
