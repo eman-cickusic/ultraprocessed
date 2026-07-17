@@ -14,7 +14,7 @@ The root manifest is the production source of truth. The root version log record
 | Module ID | Kind | Path | Version | Runtime Surface |
 | --- | --- | --- | --- | --- |
 | `android-app` | android-gradle-module | `:app` | `1.0.2` | Android `BuildConfig.VERSION_NAME` |
-| `backend-proxy` | cloud-run-service | `backend` | `1.0.2` | FastAPI `app.version` and `GET /version` |
+| `backend-proxy` | cloud-run-service | `backend` | `1.0.4` | FastAPI `app.version` and `GET /version` |
 | `analysis` | android-package | `app/src/main/java/com/b2/ultraprocessed/analysis` | `1.0.1` | module version manifest |
 | `barcode` | android-package | `app/src/main/java/com/b2/ultraprocessed/barcode` | `1.0.0` | module version manifest |
 | `camera` | android-package | `app/src/main/java/com/b2/ultraprocessed/camera` | `1.0.0` | module version manifest |
@@ -25,7 +25,7 @@ The root manifest is the production source of truth. The root version log record
 | `storage` | android-package | `app/src/main/java/com/b2/ultraprocessed/storage` | `1.0.0` | module version manifest |
 | `ui` | android-package | `app/src/main/java/com/b2/ultraprocessed/ui` | `1.0.1` | module version manifest |
 | `backend-prompts` | backend-contract-assets | `backend/prompts` | `1.0.3` | backend-owned prompt files |
-| `documentation` | repo-documentation | `documentation` | `1.0.0` | repo documentation and handoff docs |
+| `documentation` | repo-documentation | `documentation` | `1.0.1` | repo documentation and handoff docs |
 | `agent-context` | repo-agent-guidance | `AGENTS.md` | `1.0.0` | `AGENTS.md` and `.cursor/rules/zest-project.mdc` |
 
 ## Production Tracking Contract

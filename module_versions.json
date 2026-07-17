@@ -91,7 +91,7 @@
       "id": "documentation",
       "kind": "repo-documentation",
       "path": "documentation",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "runtimeSurface": "repo documentation and handoff docs"
     },
     {

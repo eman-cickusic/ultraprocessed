@@ -12,6 +12,7 @@ Date: 2026-07-16
 - Capped Cloud Run `--max-instances` 100 -> 10 to bound the Vertex cost/quota blast radius.
 - Added `documentation/15-backend-abuse-controls.md` with exposure, mitigations, and the ordered enforcement rollout.
 - No Android module change; enforcement stays off until a token-sending app build has adoption.
+- Bumped `backend-proxy` to 1.0.4 and `documentation` to 1.0.1; updated `module_versions.json` and `documentation/12-module-versioning.md` to match.
 
 ## 1.0.3
 
